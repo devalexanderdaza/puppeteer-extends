@@ -1,6 +1,6 @@
 {
   "name": "puppeteer-extends",
-  "version": "0.0.0-semantically-released",
+  "version": "0.0.0-development",
   "description": "Brief and fresh sentence fragment",
   "homepage": "https://github.com/devalexanderdaza/puppeteer-extends",
   "bugs": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devalexanderdaza/puppeteer-extends.git"
+    "url": "https://github.com/devalexanderdaza/puppeteer-extends.git"
   },
   "license": "Apache-2.0",
   "author": "Alexander Daza <dev.alexander.daza@gmail.com> (https://github.com/devalexanderdaza)",
@@ -17,6 +17,9 @@
   "files": [
     "dist/src/"
   ],
+  "release": {
+    "branches": ["main"]
+  },
   "scripts": {
     "prepublishOnly": "npm run build",
     "ava": "ava -v",
@@ -30,7 +33,8 @@
     "prettier": "prettier --list-different .",
     "prettier:fix": "prettier --write .",
     "test": "nyc ava",
-    "posttest": "npm run docs"
+    "posttest": "npm run docs",
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
     "@types/puppeteer": "^3.0.1",
@@ -66,7 +70,8 @@
     "prettier": "2.2.1",
     "rimraf": "^3.0.2",
     "ts-node": "^10.3.0",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "semantic-release": "^18.0.0"
   },
   "pre-commit": "lint-staged",
   "ava": {
