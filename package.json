@@ -1,6 +1,6 @@
 {
   "name": "puppeteer-extends",
-  "version": "0.0.0-development",
+  "version": "1.0.1",
   "description": "Brief and fresh sentence fragment",
   "homepage": "https://github.com/devalexanderdaza/puppeteer-extends",
   "bugs": {
@@ -18,7 +18,9 @@
     "dist/src/"
   ],
   "release": {
-    "branches": ["main"]
+    "branches": [
+      "main"
+    ]
   },
   "scripts": {
     "prepublishOnly": "npm run build",
