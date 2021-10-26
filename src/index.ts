@@ -1,11 +1,16 @@
 /**
- * puppeteer-extends
- * Brief and fresh sentence fragment
+ * @since 1.0.0
  */
+import * as Puppeteer from './puppeteer';
+import { Logger } from './logger';
 
 /**
- * TODO: document
+ * Export library components
+ *
+ * @example
+ * import { Puppeteer, Logger } from "puppeteer-extends";
+ *
+ * @since 1.0.0
+ * @category extends
  */
-export function puppeteerExtends() {
-    // TODO: implement
-}
+export { Puppeteer, Logger };

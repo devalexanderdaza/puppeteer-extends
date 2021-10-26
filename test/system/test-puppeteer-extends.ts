@@ -1,7 +1,5 @@
-import test from 'ava'
-
-import { puppeteerExtends } from '../../src/index'
+import test from 'ava';
 
 test.skip('TODO: system-test puppeteer-extends', (t) => {
-    t.fail()
-})
+  t.fail();
+});
