@@ -1,23 +1,11 @@
-/**
- * Welcome to your gulpfile!
- * The gulp tasks are splitted in several files in the gulp directory
- */
+"use strict";
 
-'use strict';
+const gulp = require('gulp');
+const HubRegistry = require('gulp-hub');
+const { task, parallel } = require("gulp");
 
-var gulp = require('gulp-help')(require('gulp')),
-    requireDir = require('require-dir');
+const hub = new HubRegistry(['gulp/*.js']);
 
-/**
- * This will load all js in the gulp directory
- * in order to load all gulp tasks
- */
-requireDir('./gulp');
+gulp.registry(hub);
 
-/**
- * Default task clean temporaries directories and launch the
- * main optimization build task
- */
-gulp.task('default', function () {
-  gulp.start('build');
-});
+

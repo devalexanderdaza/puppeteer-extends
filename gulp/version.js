@@ -3,11 +3,12 @@
  */
 
 'use strict';
-var gulp = require('gulp-help')(require('gulp')),
-  git = require('gulp-git'),
-  bump = require('gulp-bump'),
-  filter = require('gulp-filter'),
-  tag_version = require('gulp-tag-version');
+
+const { task, parallel, src, dest } = require('gulp');
+let git = require('gulp-git');
+const bump = require('gulp-bump');
+const filter = require('gulp-filter');
+const tag_version = require('gulp-tag-version');
 
 /**
  * Bumping version number and tagging the repository with it.
@@ -25,24 +26,24 @@ var gulp = require('gulp-help')(require('gulp')),
 
 function inc(importance) {
   // get all the files to bump version in
-  return gulp.src(['./package.json'])
+  return src(['./package.json'])
     // bump the version number in those files
-    .pipe(bump({type: importance}))
+    .pipe(bump({ type: importance }))
     // save it back to filesystem
-    .pipe(gulp.dest('./'))
+    .pipe(dest('./'))
     // commit the changed version number
     .pipe(git.commit('bumps package version'))
     // read only one file to get the version number
     .pipe(filter('package.json'))
     // **tag it in the repository**
-    .pipe(tag_version());
+    .pipe(tag_version({key: "version", prefix: "v", push: true}));
 }
 
 /**
  * Gulp patch version task.
  * Increment patch version commit files and tag version.
  */
-gulp.task('patch', function() {
+task('patch', function () {
   return inc('patch');
 });
 
@@ -50,7 +51,7 @@ gulp.task('patch', function() {
  * Gulp feature version task.
  * Increment feature version commit files and tag version.
  */
-gulp.task('feature', function() {
+task('feature', function () {
   return inc('minor');
 });
 
@@ -58,6 +59,6 @@ gulp.task('feature', function() {
  * Gulp release version task.
  * Increment release version commit files and tag version.
  */
-gulp.task('release', function() {
+task('release', function () {
   return inc('major');
 });

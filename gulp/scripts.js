@@ -4,18 +4,17 @@
 
 'use strict';
 
-var path = require('path'),
-    gulp = require('gulp-help')(require('gulp')),
-    conf = require('./conf'),
-    runSequence = require('run-sequence'),
-    tsConf = require('./../tsconfig.json').compilerOptions,
-    $ = require('gulp-load-plugins')();
+const { task, parallel, src, dest } = require('gulp');
+const path = require('path'),
+  conf = require('./conf'),
+  tsConf = require('./../tsconfig.json').compilerOptions,
+  $ = require('gulp-load-plugins')();
 
 /* Initialize TS Project */
-var tsProject = $.typescript.createProject(conf.paths.tsconfig_json);
+const tsProject = $.typescript.createProject(conf.paths.tsconfig_json);
 
 /* Concat all source, test and typings TS files  */
-var tsFiles = [].concat(path.join(conf.paths.src, conf.path_pattern.ts), path.join(conf.paths.test, conf.path_pattern.ts), conf.paths.typings.browser);
+const tsFiles = [].concat(path.join(conf.paths.src, conf.path_pattern.ts), path.join(conf.paths.test, conf.path_pattern.ts), conf.paths.typings.browser);
 
 /**
  * Gulp npm task.
@@ -23,11 +22,8 @@ var tsFiles = [].concat(path.join(conf.paths.src, conf.path_pattern.ts), path.jo
  * Typescript compiler will generate all .js files and d.ts references for the source files.
  * Report errors.
  */
-gulp.task('npm',['clean-lib'], function () {
-  return gulp.src([].concat(path.join(conf.paths.src, conf.path_pattern.ts), conf.paths.typings.browser))
-    .pipe($.tsc(tsConf))
-    .pipe(gulp.dest(conf.paths.lib))
-    .on('error', conf.errorHandler(conf.errors.title.TYPESCRIPT));
+task('npm', async function (done) {
+  parallel('clean-lib', done);
 });
 
 /**
@@ -35,10 +31,10 @@ gulp.task('npm',['clean-lib'], function () {
  * Typescript compiler will generate all .js files and maps references for the source files.
  * Report errors.
  */
-gulp.task('tmp-scripts', function() {
-  var res = gulp.src(tsFiles, {
-      base: '.'
-    })
+task('tmp-scripts', async function () {
+  const res = src(tsFiles, {
+    base: '.'
+  })
     .pipe($.sourcemaps.init())
     .pipe($.typescript(tsProject))
     .on('error', conf.errorHandler(conf.errors.title.TYPESCRIPT));
@@ -48,11 +44,11 @@ gulp.task('tmp-scripts', function() {
       // Return relative source map root directories per file.
       includeContent: false,
       sourceRoot: function (file) {
-        var sourceFile = path.join(file.cwd, file.sourceMap.file);
+        const sourceFile = path.join(file.cwd, file.sourceMap.file);
         return path.relative(path.dirname(sourceFile), file.cwd);
       }
     }))
-    .pipe(gulp.dest('.'));
+    .pipe(dest('.'));
 });
 
 /**
@@ -60,14 +56,16 @@ gulp.task('tmp-scripts', function() {
  * Typescript compiler will generate all .js files and maps references for the source files.
  * Report errors.
  */
-gulp.task('tmp-watch-scripts',['clean-js-tmp'], function() {
-  var res = gulp.src(tsFiles, {
-      base: '.'
-    })
+
+task('tmp-watch-scripts', async function (done) {
+  const res = src(tsFiles, {
+    base: '.'
+  })
     .pipe($.typescript(tsProject))
     .on('error', conf.errorHandler(conf.errors.title.TYPESCRIPT));
+  parallel('clean-js-tmp', done);
   return res.js
-    .pipe(gulp.dest(conf.paths.jsTmp));
+    .pipe(dest(conf.paths.jsTmp));
 });
 
 /**
@@ -75,7 +73,7 @@ gulp.task('tmp-watch-scripts',['clean-js-tmp'], function() {
  * Run node Security check.
  * @param done - done callback function.
  */
-gulp.task('nsp', function (done) {
+task('nsp', async function (done) {
   $.nsp({
     package: path.resolve('package.json')
   }, done);
@@ -86,6 +84,6 @@ gulp.task('nsp', function (done) {
  * Run nsp -> clean build -> show tslint errors and update tsconfig.json in parallel -> run npm.
  * @param done - done callback function.
  */
-gulp.task('build-scripts',function(done) {
-  runSequence('nsp','clean-build',['tslint', 'tsconfig-update'], 'npm', done);
+task('build-scripts', async function (done) {
+  parallel('nsp', 'clean-build', ['tslint', 'tsconfig-update'], 'npm', done);
 });

@@ -4,9 +4,8 @@
 
 'use strict';
 
-var path = require('path'),
-  gulp = require('gulp-help')(require('gulp')),
-  runSequence = require('run-sequence'),
+const { task, parallel, src } = require('gulp');
+const path = require('path'),
   conf = require('./conf'),
   $ = require('gulp-load-plugins')(),
   remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
@@ -15,18 +14,19 @@ var path = require('path'),
 /**
  * Gulp pre coverage test with mocha and istanbul configuration.
  */
-gulp.task('pre-test', ['coverage-build'], function() {
-  return gulp.src(path.join(conf.paths.src, conf.path_pattern.js))
+task('pre-test', async function(done) {
+  parallel('coverage-build', done);
+  return src(path.join(conf.paths.src, conf.path_pattern.js))
     .pipe($.istanbul({
       includeUntested: true
     }))
     .pipe($.istanbul.hookRequire());
 });
 
-var runTest = function(reporters, done) {
-  var mochaError;
+const runTest = async function(reporters, done) {
+  let mochaError;
 
-  gulp.src(path.join(conf.paths.test, conf.path_pattern.js))
+  src(path.join(conf.paths.test, conf.path_pattern.js))
     .pipe($.plumber())
     .pipe($.mocha({
       reporter: 'spec'
@@ -50,7 +50,8 @@ var runTest = function(reporters, done) {
  * Gulp coverage test with mocha and istanbul configuration.
  * @param done - done callback function.
  */
-gulp.task('coverage-test', ['pre-test'], function(done) {
+task('coverage-test', async function(done) {
+  parallel('pre-test', done);
   runTest(['json', 'text', 'text-summary'], done);
 });
 
@@ -58,7 +59,8 @@ gulp.task('coverage-test', ['pre-test'], function(done) {
  * Gulp summary test with mocha and istanbul configuration.
  * @param done - done callback function.
  */
-gulp.task('summary-test', ['pre-test'], function(done) {
+task('summary-test', async function(done) {
+  parallel('pre-test', done);
   runTest(['text', 'text-summary'], done);
 });
 
@@ -67,8 +69,8 @@ gulp.task('summary-test', ['pre-test'], function(done) {
  * Cleans temporary created files in sources -> cleans coverage folder -> run coverage test -> remap istanbul support -> clean temporary generated files.
  * @param done - done callback function.
  */
-gulp.task('coverage', 'Run tests and generate coverage', function(done) {
-  runSequence('clean-source-tmp', 'clean-coverage', 'coverage-test', 'remap-istanbul', 'clean-source-tmp', done);
+task('coverage', async function(done) {
+  parallel('coverage-test', 'remap-istanbul', done);
 });
 
 /**
@@ -76,16 +78,16 @@ gulp.task('coverage', 'Run tests and generate coverage', function(done) {
  * Cleans temporary created files in sources -> run summary test -> clean temporary generated files.
  * @param done - done callback function.
  */
-gulp.task('test', 'Run tests and generate coverage', function(done) {
-  runSequence('clean-source-tmp', 'summary-test', 'clean-source-tmp', done);
+task('test', async function(done) {
+  parallel('clean-source-tmp', 'summary-test', 'clean-source-tmp', done);
 });
 
 /**
  * Gulp coverage build task.
  * clean tmp -> tmp scripts
  */
-gulp.task('coverage-build', function(done){
-  runSequence('clean-source-tmp','tmp-scripts', done);
+task('coverage-build', async function(done){
+  parallel('clean-source-tmp','tmp-scripts', done);
 });
 
 /**
@@ -93,8 +95,8 @@ gulp.task('coverage-build', function(done){
  * RemapIstanbul will access the coverage-final.json and generate reports.
  * Report errors.
  */
-gulp.task('remap-istanbul', function () {
-  return gulp.src(path.join(conf.paths.coverage, 'coverage-final.json'))
+task('remap-istanbul', async function () {
+  return src(path.join(conf.paths.coverage, 'coverage-final.json'))
     .pipe(remapIstanbul({
       reports: {
         'html': path.join(conf.paths.coverage, conf.paths.reportDir),

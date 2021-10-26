@@ -4,8 +4,8 @@
 
 'use strict';
 
-var path = require('path'),
-    gulp = require('gulp-help')(require('gulp')),
+const { task, parallel, src } = require('gulp');
+const path = require('path'),
     $ = require('gulp-load-plugins')(),
     tsConf = require('./../tsconfig.json').compilerOptions,
     conf = require('./conf');
@@ -15,9 +15,8 @@ var path = require('path'),
  * Used to generate API documentation for typescript sources.
  * Report errors.
  */
-gulp.task('typedoc',['clean-doc'], function () {
-  return gulp
-    .src(path.join(conf.paths.src, conf.path_pattern.ts))
+task('typedoc', async function (done) {
+  return src(path.join(conf.paths.src, conf.path_pattern.ts))
     .pipe($.typedoc({
       module: tsConf.module,
       target: tsConf.target,

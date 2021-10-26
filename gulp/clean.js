@@ -4,60 +4,69 @@
 
 'use strict';
 
-var path = require('path'),
-    gulp = require('gulp-help')(require('gulp')),
-    del = require('del'),
-    runSequence = require('run-sequence'),
-    conf = require('./conf');
+const { task, parallel, src, dest } = require('gulp');
+const path = require('path'),
+  del = require('del'),
+  conf = require('./conf');
+const gulp = require("gulp");
+const bump = require("gulp-bump");
+const git = require("gulp-git");
+const filter = require("gulp-filter");
+const tag_version = require("gulp-tag-version");
+
+async function clean(dir, done) {
+  del(dir);
+  done();
+}
 
 /**
  * Gulp clean lib directory task.
  */
-gulp.task('clean-lib', function () {
-    return del([
-        conf.paths.lib
-    ]);
+task('clean-lib', async function (done) {
+  return del([
+    conf.paths.lib
+  ]);
 });
 
 /**
  * Gulp clean coverage directory task.
  */
-gulp.task('clean-coverage', function () {
-    return del([
-        conf.paths.coverage
-    ]);
+task('clean-coverage', async function (done) {
+  return del([
+    conf.paths.coverage
+  ]);
 });
 
 /**
  * Gulp clean documentation directory task.
  */
-gulp.task('clean-doc', function () {
-    return del([
-        conf.paths.docs
-    ]);
+task('clean-doc', async function (done) {
+  return del([
+    conf.paths.docs
+  ]);
 });
 
 /**
  * Gulp task to clean temporary .js files which are created inside src folder.
  */
-gulp.task('clean-source-tmp', function () {
-    return del([
-      path.join(conf.paths.src, conf.path_pattern.js),
-      path.join(conf.paths.src, conf.path_pattern.map),
-      path.join(conf.paths.src, conf.path_pattern.ktp_ts),
-      path.join(conf.paths.test, conf.path_pattern.js),
-      path.join(conf.paths.test, conf.path_pattern.map),
-      path.join(conf.paths.test, conf.path_pattern.ktp_ts)
-    ]);
+task('clean-source-tmp', async function (done) {
+  return del([
+    path.join(conf.paths.src, conf.path_pattern.js),
+    path.join(conf.paths.src, conf.path_pattern.map),
+    path.join(conf.paths.src, conf.path_pattern.ktp_ts),
+    path.join(conf.paths.test, conf.path_pattern.js),
+    path.join(conf.paths.test, conf.path_pattern.map),
+    path.join(conf.paths.test, conf.path_pattern.ktp_ts)
+  ]);
 });
 
 /**
  * Gulp task to clean temporary .js files which are created inside .jsTmp folder.
  */
-gulp.task('clean-js-tmp', function () {
-    return del([
-        conf.paths.jsTmp
-    ]);
+task('clean-js-tmp', async function (done) {
+  return del([
+    conf.paths.jsTmp
+  ]);
 });
 
 /**
@@ -65,8 +74,8 @@ gulp.task('clean-js-tmp', function () {
  * Run clean-js-tmp task.
  * @param done - done callback function.
  */
-gulp.task('clean-tmp', function(done){
-  runSequence('clean-js-tmp',done);
+task('clean-tmp', async function (done) {
+  parallel('clean-js-tmp', done);
 });
 
 /**
@@ -74,7 +83,7 @@ gulp.task('clean-tmp', function(done){
  * Run clean-lib task.
  * @param done - done callback function.
  */
-gulp.task('clean-build', function(done){
-    runSequence('clean-lib',done);
+task('clean-build', async function (done) {
+  parallel('clean-lib', done);
 });
 

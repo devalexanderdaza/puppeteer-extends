@@ -13,7 +13,14 @@
     "src/**/*.ts",
     "test/**/*.ts"
   ],
-  "files": [],
+  "files": [
+    "typings/browser.d.ts",
+    "src/index.ts",
+    "src/main/Logger.ts",
+    "src/main/Moment.ts",
+    "src/main/Puppeteer.ts",
+    "test/main/Wish.spec.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

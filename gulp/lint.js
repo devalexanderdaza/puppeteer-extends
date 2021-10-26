@@ -4,8 +4,8 @@
 
 'use strict';
 
-var path = require('path'),
-    gulp = require('gulp-help')(require('gulp')),
+const { task, parallel, src } = require('gulp');
+const path = require('path'),
     conf = require('./conf'),
     stylish = require('jshint-stylish'),
     $ = require('gulp-load-plugins')();
@@ -15,8 +15,8 @@ var path = require('path'),
  * Run TSLint and report errors.
  * Report errors on pipe process.
  */
-gulp.task('tslint', function () {
-    return gulp.src(conf.tsFilesGlob)
+task('tslint', async function () {
+    return src(conf.tsFilesGlob)
         .pipe($.tslint())
         .pipe($.tslint.report(conf.reports.tslint_report_type, {
             emitError: false
@@ -29,8 +29,8 @@ gulp.task('tslint', function () {
  * Run JShint.
  * Use jshint stylish to show errors.
  */
-gulp.task('jshint', function () {
-  return gulp.src([path.join(conf.paths.gulp, conf.path_pattern.js), conf.paths.gulpFile])
+task('jshint', async function () {
+  return src([path.join(conf.paths.gulp, conf.path_pattern.js), conf.paths.gulpFile])
     .pipe($.jshint())
     .pipe($.jshint.reporter(stylish));
 });
