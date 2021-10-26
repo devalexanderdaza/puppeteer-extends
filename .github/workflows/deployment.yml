@@ -2,7 +2,7 @@
 
 name: Build release and publish
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the $default-branch branch
   push:
@@ -15,19 +15,25 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
+  checkout:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
       - uses: actions/checkout@v2
-        with:
+      - with:
           fetch-depth: 0
+  build:
+    runs-on: ubuntu-latest
+    steps:
       - name: Use Node.js ${{ matrix.node-version }}
       - uses: actions/setup-node@v2
       - with:
           node-version: 'lts/*'
       - run: npm ci
       - run: npm run build
+  release:
+    runs-on: ubuntu-latest
+    steps:
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
