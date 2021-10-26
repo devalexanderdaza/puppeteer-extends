@@ -1,9 +1,11 @@
-import * as PuppeteerExtends from './main/Puppeteer';
+/**
+ * puppeteer-extends
+ * Brief and fresh sentence fragment
+ */
 
 /**
- * Export Puppeteer to public as typescript modules.
+ * TODO: document
  */
-export {
-  PuppeteerExtends
-};
-
+export function puppeteerExtends() {
+    // TODO: implement
+}
