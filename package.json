@@ -20,7 +20,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "ava": "ava -v",
-    "clean": "rimraf --no-glob dist",
+    "clean": "rimraf --no-glob dist && rm -rf ./tmp && rm -rf ./logs && rm -rf ./.nyc_output",
     "build": "tsc --build --incremental --verbose .",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "docs": "docs-ts",
@@ -32,18 +32,27 @@
     "test": "nyc ava",
     "posttest": "npm run docs"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/puppeteer": "^3.0.1",
+    "cloudscraper": "^4.6.0",
+    "folder-logger": "^1.0.9",
+    "puppeteer": "^5.0.0",
+    "puppeteer-extra": "^3.1.12",
+    "puppeteer-extra-plugin-stealth": "^2.4.12",
+    "request": "^2.88.2"
+  },
   "devDependencies": {
     "@ericcrosson/eslint-config": "^2.1.3",
     "@ericcrosson/prettier-config": "^1.0.0",
     "@types/node": "^14.14.17",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
     "ava": "^3.14.0",
     "ava-fast-check": "^4.0.0",
     "codecov": "^3.8.1",
     "docs-ts": "^0.5.3",
-    "eslint": "^7.16.0",
+    "eslint": "^8.1.0",
+    "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^6.6.0",
     "eslint-plugin-ava": "^10.2.0",
     "eslint-plugin-fp-ts": "^0.2.1",
@@ -60,7 +69,6 @@
     "ts-node": "^10.3.0",
     "typescript": "^4.4.4"
   },
-  "pre-commit": "lint-staged",
   "ava": {
     "extensions": [
       "ts"
