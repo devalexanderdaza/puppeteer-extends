@@ -23,6 +23,8 @@ jobs:
         run: npm ci
       - name: Release
         env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GIT_CREDENTIALS: ${{ secrets.GIT_CREDENTIALS }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+        run: npm run semantic-release
