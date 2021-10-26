@@ -1,10 +1,11 @@
 /**
  * @since 1.0.0
  */
-import * as puppeteerExtends from './main/puppeteer';
+import * as PuppeteerExtends from './main/puppeteer';
 import { Logger } from './main/logger';
+import * as MomentExtends from "./main/moment";
 
 /**
  * @since 1.0.0
  */
-export { puppeteerExtends, Logger };
+export { PuppeteerExtends, Logger, MomentExtends };
