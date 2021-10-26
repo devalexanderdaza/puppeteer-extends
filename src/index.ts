@@ -1,16 +1,9 @@
-/**
- * @since 1.0.0
- */
-import * as Puppeteer from './puppeteer';
-import { Logger } from './logger';
+import * as PuppeteerExtends from './main/Puppeteer';
 
 /**
- * Export library components
- *
- * @example
- * import { Puppeteer, Logger } from "puppeteer-extends";
- *
- * @since 1.0.0
- * @category extends
+ * Export Puppeteer to public as typescript modules.
  */
-export { Puppeteer, Logger };
+export {
+  PuppeteerExtends
+};
+
