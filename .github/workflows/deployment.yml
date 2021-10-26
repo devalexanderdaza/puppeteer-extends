@@ -15,25 +15,17 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  checkout:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
       - uses: actions/checkout@v2
-      - with:
-          fetch-depth: 0
-  build:
-    runs-on: ubuntu-latest
-    steps:
       - name: Use Node.js ${{ matrix.node-version }}
       - uses: actions/setup-node@v2
       - with:
           node-version: 'lts/*'
       - run: npm ci
       - run: npm run build
-  release:
-    runs-on: ubuntu-latest
-    steps:
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
