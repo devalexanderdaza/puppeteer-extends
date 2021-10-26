@@ -1,0 +1,6 @@
+.idea
+.nyc_output
+dist
+node_modules
+logs
+tmp
