@@ -1,7 +1,7 @@
-import { Puppeteer, Logger } from "./src/index";
+import { puppeteerExtends, Logger } from "./src/index";
 
 const main = async () => {
-    const browser = await Puppeteer.getBrowser({ isHeadless: true })
+    const browser = await puppeteerExtends.getBrowser({ isHeadless: true })
     if (browser) {
         const page = await browser.newPage()
 
@@ -9,7 +9,7 @@ const main = async () => {
         Logger.debug('🚧  Crawling in progress...')
 
         const url = 'https://github.com'
-        await Puppeteer.goto(page, url)
+        await puppeteerExtends.goto(page, url)
         await page.screenshot({ path: 'example.png' })
 
         Logger.debug('🚧  Crawling is complete.')

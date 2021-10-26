@@ -8,8 +8,7 @@ import cloudscraper from 'cloudscraper';
 import { Logger } from './logger';
 
 /**
- * * Manage browser instances with a singleton.
- * @since 1.0.0
+ * Manage browser instances with a singleton.
  */
 let browserSingleton: puppeteer.Browser | undefined;
 
@@ -19,9 +18,8 @@ interface IOptions {
 }
 
 /**
- * * Returns the instance of a Puppeteer browser.
- * * If the browser is open, return the past browser instance.
- * @since 1.0.0
+ * Returns the instance of a Puppeteer browser.
+ * @ignore
  */
 export const getBrowser = async (options: IOptions) => {
     if (!browserSingleton) {
@@ -32,11 +30,8 @@ export const getBrowser = async (options: IOptions) => {
 }
 
 /**
- * * Define a puppeteer initializer
- * @param isHeadless
- * @param isDebug
- *
- * @since 1.0.0
+ * Define a puppeteer initializer
+ * @ignore
  */
 const init = async ({isHeadless = true, isDebug = true}): Promise<Browser | undefined> => {
     require('tls').DEFAULT_MIN_VERSION = 'TLSv1';
@@ -87,10 +82,8 @@ const init = async ({isHeadless = true, isDebug = true}): Promise<Browser | unde
 }
 
 /**
- * * Go to that page using puppeteer.
- * * (with stealth mode applied)
- *
- * @since 1.0.0
+ * Go to that page using puppeteer.
+ * @ignore
  */
 export const goto = async (
     page: puppeteer.Page,
@@ -133,10 +126,8 @@ export const goto = async (
 }
 
 /**
- * * Makes cookies look real.
- * @param url
- *
- * @since 1.0.0
+ * Makes cookies look real.
+ * @ignore
  */
 export const getImitationCookie = (url) => {
     return new Promise((resolve, reject) =>
