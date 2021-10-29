@@ -1,7 +1,7 @@
 /**
  * @since 1.0.0
  */
-import { FolderLogger } from "folder-logger";
+import { FolderLogger } from 'folder-logger';
 /**
  * Export library components
  *

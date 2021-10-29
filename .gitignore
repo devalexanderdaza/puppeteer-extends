@@ -5,3 +5,7 @@ node_modules
 logs
 tmp
 husky install
+examples/dev-example.ts
+examples/*.png
+examples/logs
+examples/tmp

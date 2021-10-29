@@ -1,16 +1,21 @@
 /**
  * @since 1.0.0
  */
-import puppeteer from "puppeteer";
+import puppeteer, { Browser, Page } from "puppeteer";
+/**
+ * Browser initializer options interface
+ */
 interface IOptions {
     isHeadless?: boolean | undefined;
     isDebug?: boolean | undefined;
+    customArguments?: string[] | undefined;
+    userDataDir?: string;
 }
 /**
  * Returns the instance of a Puppeteer browser.
  * @ignore
  */
-export declare const getBrowser: (options: IOptions) => Promise<puppeteer.Browser | undefined>;
+export declare const getBrowser: (options: IOptions) => Promise<Browser | undefined>;
 /**
  * Go to that page using puppeteer.
  * @ignore
@@ -20,6 +25,16 @@ export declare const goto: (page: puppeteer.Page, targetUrl: string, options?: {
     isDebug: boolean;
     timeout: number;
 }) => Promise<boolean>;
+/**
+ * Close page, not browser
+ * @param page
+ */
+export declare const closePage: (page: puppeteer.Page) => void;
+/**
+ * Close browser and all pages
+ * @param browser
+ */
+export declare const closeBrowser: (browser: Browser) => void;
 /**
  * Makes cookies look real.
  * @ignore
