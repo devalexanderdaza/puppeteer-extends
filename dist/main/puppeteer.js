@@ -130,7 +130,8 @@ var init = function (_a) {
                     if (isDebug)
                         logger_1.Logger.debug("\uD83D\uDEA7  Headless Chrome has been started.");
                     // @ts-ignore
-                    puppeteer_extra_1.default.setMaxListeners = function () { };
+                    puppeteer_extra_1.default.setMaxListeners = function () {
+                    };
                     puppeteer_extra_1.default.use((0, puppeteer_extra_plugin_stealth_1.default)());
                     return [2 /*return*/, browser];
                 case 3:

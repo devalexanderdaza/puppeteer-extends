@@ -32,7 +32,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@types/puppeteer": "^3.0.1",
     "cloudscraper": "^4.6.0",
     "folder-logger": "^1.0.9",
     "puppeteer": "^5.0.0",
@@ -48,6 +47,7 @@
     "@semantic-release/changelog": "^6.0.0",
     "@semantic-release/git": "^10.0.0",
     "@types/node": "^14.14.17",
+    "@types/puppeteer": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
     "ava": "^3.14.0",
