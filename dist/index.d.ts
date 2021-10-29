@@ -1,5 +1,5 @@
-import * as PuppeteerExtends from './main/puppeteer';
-import { Logger } from './main/logger';
+import * as PuppeteerExtends from "./main/puppeteer";
+import { Logger } from "./main/logger";
 /**
  * Main instances of puppeteer-extends
  *

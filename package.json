@@ -1,6 +1,6 @@
 {
   "name": "puppeteer-extends",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Easy manage and instance a puppeteer using a singleton pattern. Minimal configuration implemented for install and use.",
   "homepage": "https://github.com/devalexanderdaza/puppeteer-extends",
   "bugs": {
