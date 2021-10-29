@@ -1,4 +1,5 @@
-import { PuppeteerExtends, Logger } from "./src/index";
+// import { PuppeteerExtends, Logger } from 'puppeteer-extends';
+import { PuppeteerExtends, Logger } from '../dist/index';
 
 const main = async () => {
     const browser = await PuppeteerExtends.getBrowser({ isHeadless: true })
