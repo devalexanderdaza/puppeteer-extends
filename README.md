@@ -11,7 +11,7 @@
 [Code Coverage]: https://codecov.io/gh/devalexanderdaza/puppeteer-extends/branch/master/graph/badge.svg
 [semantic-release]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
 
-> Brief and fresh sentence fragment
+> Easy manage and instance a puppeteer using a singleton pattern. Minimal configuration implemented for install and use.
 
 ## Install
 
@@ -22,14 +22,25 @@ npm install puppeteer-extends
 ## Use
 
 ``` typescript
-import { puppeteerExtends } from 'puppeteer-extends'
-// TODO: describe usage
+import { PuppeteerExtends, Logger } from 'puppeteer-extends';
+
+const main = async () => {
+    const browser = await PuppeteerExtends.getBrowser({ isHeadless: true });
+    if (browser) {
+        const page = await browser.newPage();
+
+        // * An example of crawling a page with CloudFlare applied.
+        Logger.debug('🚧  Crawling in progress...');
+
+        const url = 'https://github.com/devalexanderdaza';
+        await PuppeteerExtends.goto(page, url);
+        await page.screenshot({ path: 'devalexanderdaza-github-screenshot.png' });
+
+        Logger.debug('🚧  Crawling is complete.');
+        Logger.debug('🚧  Exit the Puppeteer...');
+        await browser.close();
+    }
+}
+
+main().then(r => {});
 ```
-
-## Related
-
-TODO
-
-## Acknowledgments
-
-TODO

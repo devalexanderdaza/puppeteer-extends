@@ -8,7 +8,7 @@ const main = async () => {
         // * An example of crawling a page with CloudFlare applied.
         Logger.debug('🚧  Crawling in progress...')
 
-        const url = 'https://github.com'
+        const url = 'https://github.com/devalexanderdaza'
         await PuppeteerExtends.goto(page, url)
         await page.screenshot({ path: 'example.png' })
 
