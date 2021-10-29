@@ -2,31 +2,34 @@ name: Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main, beta]
 
 jobs:
   release:
     name: Release
-
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v1
         with:
-          node-version: 'lts/*'
+          node-version: 14.x
       - name: Install dependencies
-        run: npm ci
+        run: npx ci
+      - name: Install semantic-release extra plugins
+        run: npm install --save-dev @semantic-release/changelog @semantic-release/git
+      - name: Lint
+        run: npm run lint:fix
+      - name: Prettier
+        run: npm run prettier:fix
+      - name: Test
+        run: npm run test --if-present
+      - name: Build
+        run: npm run build
       - name: Release
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIT_CREDENTIALS: ${{ secrets.GIT_CREDENTIALS }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm run semantic-release
+        run: npx semantic-release

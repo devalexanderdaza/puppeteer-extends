@@ -1,6 +1,6 @@
 import { testProp, fc } from 'ava-fast-check'
 
-import { puppeteerExtends } from '../../src/index'
+import { PuppeteerExtends } from '../../src/index'
 
 testProp.skip(
     'TODO: property-test puppeteer-extends',
