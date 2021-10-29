@@ -1,9 +1,15 @@
-## [1.3.4](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.3...v1.3.4) (2021-10-29)
+# [1.4.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.4...v1.4.0) (2021-10-29)
 
+
+### Features
+
+* **puppeter-arguments:** implemented puppeter arguments and path logs ([f33210b](https://github.com/devalexanderdaza/puppeteer-extends/commit/f33210bf67f1a4dedc9f49604ddd6418e5068c8c))
+
+## [1.3.4](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.3...v1.3.4) (2021-10-29)
 
 ### Bug Fixes
 
-* **documentation:** updated readme and examples ([7d2fca9](https://github.com/devalexanderdaza/puppeteer-extends/commit/7d2fca94c421b217502ec282f41bc22d77f581a9))
+- **documentation:** updated readme and examples ([7d2fca9](https://github.com/devalexanderdaza/puppeteer-extends/commit/7d2fca94c421b217502ec282f41bc22d77f581a9))
 
 ## [1.3.3](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.2...v1.3.3) (2021-10-29)
 

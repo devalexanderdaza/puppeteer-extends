@@ -51,6 +51,7 @@ var path_1 = __importDefault(require("path"));
 var browserSingleton;
 /**
  * Custom browser arguments
+ * @since 1.4.0
  */
 var args = [
     "--no-sandbox",
@@ -129,8 +130,7 @@ var init = function (_a) {
                     if (isDebug)
                         logger_1.Logger.debug("\uD83D\uDEA7  Headless Chrome has been started.");
                     // @ts-ignore
-                    puppeteer_extra_1.default.setMaxListeners = function () {
-                    };
+                    puppeteer_extra_1.default.setMaxListeners = function () { };
                     puppeteer_extra_1.default.use((0, puppeteer_extra_plugin_stealth_1.default)());
                     return [2 /*return*/, browser];
                 case 3:
@@ -147,7 +147,7 @@ var init = function (_a) {
 };
 /**
  * Go to that page using puppeteer.
- * @ignore
+ * @since 1.0.0
  */
 var goto = function (page, targetUrl, options) {
     if (options === void 0) { options = {
@@ -196,6 +196,7 @@ var goto = function (page, targetUrl, options) {
 exports.goto = goto;
 /**
  * Close page, not browser
+ * @since 1.4.0
  * @param page
  */
 var closePage = function (page) {
@@ -204,6 +205,7 @@ var closePage = function (page) {
 exports.closePage = closePage;
 /**
  * Close browser and all pages
+ * @since 1.4.0
  * @param browser
  */
 var closeBrowser = function (browser) {
