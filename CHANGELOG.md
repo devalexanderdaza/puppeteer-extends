@@ -1,9 +1,15 @@
-## [1.3.1](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.0...v1.3.1) (2021-10-29)
+## [1.3.2](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.1...v1.3.2) (2021-10-29)
 
 
 ### Bug Fixes
 
-* **build:** fixed build status ([1024cfd](https://github.com/devalexanderdaza/puppeteer-extends/commit/1024cfde526568b619b51721108b8695a9b72a83))
+* **ci:** fix ci actions ([275ab6d](https://github.com/devalexanderdaza/puppeteer-extends/commit/275ab6dc2d3a06a825bf0afe9434f6a66659be8f))
+
+## [1.3.1](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.0...v1.3.1) (2021-10-29)
+
+### Bug Fixes
+
+- **build:** fixed build status ([1024cfd](https://github.com/devalexanderdaza/puppeteer-extends/commit/1024cfde526568b619b51721108b8695a9b72a83))
 
 # [1.3.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.2.1...v1.3.0) (2021-10-29)
 
