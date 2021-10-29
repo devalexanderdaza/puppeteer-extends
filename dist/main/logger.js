@@ -12,3 +12,4 @@ var path = process.cwd() + "/logs/";
  * @since 1.0.0
  */
 exports.Logger = new folder_logger_1.FolderLogger(path);
+//# sourceMappingURL=logger.js.map

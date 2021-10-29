@@ -1,9 +1,16 @@
-# [1.1.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.0.0...v1.1.0) (2021-10-29)
+# [1.2.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.1.0...v1.2.0) (2021-10-29)
 
 
 ### Features
 
-* **codecov:** implemented codecov ([b08f0ad](https://github.com/devalexanderdaza/puppeteer-extends/commit/b08f0ada4149d1e47d9b8a4e6d6b0603ca376a4f))
+* **actions and codecov:** programed codecov and update actions ([96852ed](https://github.com/devalexanderdaza/puppeteer-extends/commit/96852ed60767386c0271953b3d27d2c4e0dc25c0))
+* **docs:** removed docs-ts and implemented typedocs ([5bf319e](https://github.com/devalexanderdaza/puppeteer-extends/commit/5bf319e6d285049d2efb7abbe334849ba3153303))
+
+# [1.1.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.0.0...v1.1.0) (2021-10-29)
+
+### Features
+
+- **codecov:** implemented codecov ([b08f0ad](https://github.com/devalexanderdaza/puppeteer-extends/commit/b08f0ada4149d1e47d9b8a4e6d6b0603ca376a4f))
 
 # 1.0.0 (2021-10-29)
 

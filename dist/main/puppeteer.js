@@ -191,3 +191,4 @@ var getImitationCookie = function (url) {
     });
 };
 exports.getImitationCookie = getImitationCookie;
+//# sourceMappingURL=puppeteer.js.map

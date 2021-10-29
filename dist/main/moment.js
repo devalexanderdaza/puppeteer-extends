@@ -8,3 +8,4 @@ var moment_1 = __importDefault(require("moment"));
 exports.moment = moment_1.default;
 require("moment/locale/en");
 moment_1.default.locale("en");
+//# sourceMappingURL=moment.js.map

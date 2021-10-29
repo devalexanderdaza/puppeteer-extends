@@ -20,10 +20,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = exports.PuppeteerExtends = void 0;
-/**
- * @since 1.0.0
- */
 var PuppeteerExtends = __importStar(require("./main/puppeteer"));
 exports.PuppeteerExtends = PuppeteerExtends;
 var logger_1 = require("./main/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
+//# sourceMappingURL=index.js.map
