@@ -28,6 +28,8 @@ jobs:
         run: npm run test --if-present
       - name: Build
         run: npm run build
+      - name: Documentation
+        run: npm run docs
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
