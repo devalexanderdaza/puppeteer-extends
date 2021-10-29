@@ -22,7 +22,7 @@
     "ava": "ava -v",
     "clean": "rimraf --no-glob dist",
     "build": "tsc --build --incremental --verbose .",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "coverage": "nyc report --reporter=json > coverage/coverage.json && codecov",
     "docs": "docs-ts",
     "lint": "eslint --ext ts . package.json",
     "lint:fix": "eslint --ext ts --fix . package.json",

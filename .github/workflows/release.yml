@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [main, beta]
+    branches: [main]
 
 jobs:
   release:
@@ -33,3 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
+      - name: Coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: npx coverage
