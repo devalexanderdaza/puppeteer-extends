@@ -1,9 +1,15 @@
-## [1.3.3](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.2...v1.3.3) (2021-10-29)
+## [1.3.4](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.3...v1.3.4) (2021-10-29)
 
 
 ### Bug Fixes
 
-* **release:** bump package and npmignore implemented ([181dfeb](https://github.com/devalexanderdaza/puppeteer-extends/commit/181dfeb5bd90cf4ecadc7a00c9d3d3f75721d5d0))
+* **documentation:** updated readme and examples ([7d2fca9](https://github.com/devalexanderdaza/puppeteer-extends/commit/7d2fca94c421b217502ec282f41bc22d77f581a9))
+
+## [1.3.3](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.2...v1.3.3) (2021-10-29)
+
+### Bug Fixes
+
+- **release:** bump package and npmignore implemented ([181dfeb](https://github.com/devalexanderdaza/puppeteer-extends/commit/181dfeb5bd90cf4ecadc7a00c9d3d3f75721d5d0))
 
 ## [1.3.2](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.1...v1.3.2) (2021-10-29)
 
