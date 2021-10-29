@@ -1,0 +1,5 @@
+language: node_js
+scripts:
+  - npm install -D codecov
+after_success:
+  - coverage

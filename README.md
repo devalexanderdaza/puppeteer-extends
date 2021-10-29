@@ -11,7 +11,7 @@
 [Code Coverage]: https://codecov.io/gh/devalexanderdaza/puppeteer-extends/branch/master/graph/badge.svg
 [semantic-release]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
 
-> Brief and fresh sentence fragment
+> Easy manage and instance a puppeteer using a singleton pattern. Minimal configuration implemented for install and use.
 
 ## Install
 
@@ -44,11 +44,3 @@ const main = async () => {
 
 main().then(r => {});
 ```
-
-## Related
-
-TODO
-
-## Acknowledgments
-
-TODO
