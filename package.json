@@ -21,7 +21,7 @@
     "prepublishOnly": "npm run build",
     "ava": "ava -v",
     "clean": "rimraf --no-glob dist",
-    "build": "tsc --build --incremental --verbose .",
+    "build": "tsc --build --incremental --verbose . && cp package.json dist/package.json",
     "coverage": "nyc report --reporter=json > coverage/coverage.json && codecov",
     "lint": "eslint --ext ts . package.json",
     "lint:fix": "eslint --ext ts --fix . package.json",
@@ -29,7 +29,8 @@
     "prettier:fix": "prettier --write .",
     "docs": "typedoc src/index.ts",
     "test": "nyc ava",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postversion": "cp -r package.json .. && cp -r npm-shrinkwrap.json .."
   },
   "dependencies": {
     "cloudscraper": "^4.6.0",
