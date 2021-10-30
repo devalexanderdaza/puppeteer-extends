@@ -1,9 +1,16 @@
-## [1.4.1](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.4.0...v1.4.1) (2021-10-29)
+## [1.4.2](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.4.1...v1.4.2) (2021-10-30)
 
 
 ### Bug Fixes
 
-* **types:** puppeteer types moved to devdependencies ([6a6e429](https://github.com/devalexanderdaza/puppeteer-extends/commit/6a6e429e08b0190c6fa25df30e6e81a1efedb4e8))
+* **actions:** test release action ([1a28381](https://github.com/devalexanderdaza/puppeteer-extends/commit/1a28381ea3ddc87e8228702955a7c34259ffbd98))
+* **actions:** updated yarn publish action ([4ab3c63](https://github.com/devalexanderdaza/puppeteer-extends/commit/4ab3c6309b919629a060c5d1b87b352059dacb44))
+
+## [1.4.1](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.4.0...v1.4.1) (2021-10-29)
+
+### Bug Fixes
+
+- **types:** puppeteer types moved to devdependencies ([6a6e429](https://github.com/devalexanderdaza/puppeteer-extends/commit/6a6e429e08b0190c6fa25df30e6e81a1efedb4e8))
 
 # [1.4.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.3.4...v1.4.0) (2021-10-29)
 
