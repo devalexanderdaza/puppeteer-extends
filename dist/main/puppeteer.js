@@ -39,15 +39,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getImitationCookie = exports.goto = exports.getBrowser = void 0;
+exports.getImitationCookie = exports.closeBrowser = exports.closePage = exports.goto = exports.getBrowser = void 0;
 var puppeteer_extra_1 = __importDefault(require("puppeteer-extra"));
 var puppeteer_extra_plugin_stealth_1 = __importDefault(require("puppeteer-extra-plugin-stealth"));
 var cloudscraper_1 = __importDefault(require("cloudscraper"));
 var logger_1 = require("./logger");
+var path_1 = __importDefault(require("path"));
 /**
  * Manage browser instances with a singleton.
  */
 var browserSingleton;
+/**
+ * Custom browser arguments
+ * @since 1.4.0
+ */
+var args = [
+    "--no-sandbox",
+    "--disable-web-security",
+    "--disable-setuid-sandbox",
+    "--aggressive-cache-discard",
+    "--disable-cache",
+    "--disable-infobars",
+    "--disable-application-cache",
+    "--window-position=0,0",
+    "--disable-offline-load-stale-cache",
+    "--disk-cache-size=0",
+    "--disable-background-networking",
+    "--disable-default-apps",
+    "--disable-extensions",
+    "--disable-sync",
+    "--disable-translate",
+    "--hide-scrollbars",
+    "--metrics-recording-only",
+    "--mute-audio",
+    "--no-first-run",
+    "--safebrowsing-disable-auto-update",
+    "--ignore-certificate-errors",
+    "--ignore-ssl-errors",
+    "--ignore-certificate-errors-spki-list",
+];
 /**
  * Returns the instance of a Puppeteer browser.
  * @ignore
@@ -59,7 +89,6 @@ var getBrowser = function (options) { return __awaiter(void 0, void 0, void 0, f
                 if (!!browserSingleton) return [3 /*break*/, 2];
                 return [4 /*yield*/, init(options)];
             case 1:
-                // @ts-ignore
                 browserSingleton = _a.sent();
                 _a.label = 2;
             case 2: return [2 /*return*/, browserSingleton];
@@ -72,11 +101,11 @@ exports.getBrowser = getBrowser;
  * @ignore
  */
 var init = function (_a) {
-    var _b = _a.isHeadless, isHeadless = _b === void 0 ? true : _b, _c = _a.isDebug, isDebug = _c === void 0 ? true : _c;
+    var _b = _a.isHeadless, isHeadless = _b === void 0 ? true : _b, _c = _a.isDebug, isDebug = _c === void 0 ? false : _c, _d = _a.customArguments, customArguments = _d === void 0 ? args : _d, _e = _a.userDataDir, userDataDir = _e === void 0 ? path_1.default.join(__dirname, "../tmp/puppeteer-extends") : _e;
     return __awaiter(void 0, void 0, void 0, function () {
-        var args, options, browser, e_1;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var options, browser, e_1;
+        return __generator(this, function (_f) {
+            switch (_f.label) {
                 case 0:
                     require("tls").DEFAULT_MIN_VERSION = "TLSv1";
                     if (isDebug) {
@@ -84,36 +113,28 @@ var init = function (_a) {
                         logger_1.Logger.debug("\uD83D\uDEA7  Starting Headless Chrome...");
                         logger_1.Logger.debug("\uD83D\uDEA7  You can exit with Ctrl+C at any time.\n");
                     }
-                    _d.label = 1;
+                    _f.label = 1;
                 case 1:
-                    _d.trys.push([1, 3, , 4]);
-                    args = [
-                        "--no-sandbox",
-                        "--disable-setuid-sandbox",
-                        "--disable-infobars",
-                        "--window-position=0,0",
-                        "--ignore-certifcate-errors",
-                        "--ignore-certifcate-errors-spki-list",
-                    ];
+                    _f.trys.push([1, 3, , 4]);
                     options = {
-                        args: args,
+                        customArguments: customArguments,
                         headless: isHeadless,
                         ignoreHTTPSErrors: true,
-                        userDataDir: "./tmp",
+                        userDataDir: userDataDir,
+                        defaultViewport: null,
+                        slowMo: 10,
                     };
                     return [4 /*yield*/, puppeteer_extra_1.default.launch(options)];
                 case 2:
-                    browser = _d.sent();
+                    browser = _f.sent();
                     if (isDebug)
                         logger_1.Logger.debug("\uD83D\uDEA7  Headless Chrome has been started.");
                     // @ts-ignore
                     puppeteer_extra_1.default.setMaxListeners = function () { };
-                    // * Apply the stealth plug-in.
                     puppeteer_extra_1.default.use((0, puppeteer_extra_plugin_stealth_1.default)());
-                    // @ts-ignore
                     return [2 /*return*/, browser];
                 case 3:
-                    e_1 = _d.sent();
+                    e_1 = _f.sent();
                     if (isDebug) {
                         logger_1.Logger.debug("\uD83D\uDEA7  Error occurred during headless chrome operation.");
                         logger_1.Logger.debug(e_1);
@@ -126,7 +147,7 @@ var init = function (_a) {
 };
 /**
  * Go to that page using puppeteer.
- * @ignore
+ * @since 1.0.0
  */
 var goto = function (page, targetUrl, options) {
     if (options === void 0) { options = {
@@ -173,6 +194,24 @@ var goto = function (page, targetUrl, options) {
     });
 };
 exports.goto = goto;
+/**
+ * Close page, not browser
+ * @since 1.4.0
+ * @param page
+ */
+var closePage = function (page) {
+    page.close().then();
+};
+exports.closePage = closePage;
+/**
+ * Close browser and all pages
+ * @since 1.4.0
+ * @param browser
+ */
+var closeBrowser = function (browser) {
+    browser.close().then();
+};
+exports.closeBrowser = closeBrowser;
 /**
  * Makes cookies look real.
  * @ignore
