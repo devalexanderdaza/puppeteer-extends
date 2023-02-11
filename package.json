@@ -50,7 +50,7 @@
     "@types/puppeteer": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
-    "ava": "^3.14.0",
+    "ava": "^5.2.0",
     "ava-fast-check": "^4.0.0",
     "codecov": "^3.8.1",
     "eslint": "^7.16.0",
