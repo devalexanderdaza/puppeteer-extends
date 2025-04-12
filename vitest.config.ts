@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
+    globals: true,
+    environment: 'node',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -15,15 +17,15 @@ export default defineConfig({
         // Ejemplos y documentación
         'examples/**',
         'docs/**',
-        
-        // Código antiguo (cuando migres completamente)
-        'src/main/**',
-        
+                
         // Otros archivos que no necesitan cobertura
         'node_modules/**',
         'dist/**',
         'test/**'
-      ]
+      ],
+      include: [
+        'src/**/*.ts'
+      ],
     }
   }
 })

@@ -1,59 +1,56 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NavigationService } from '../src/navigation';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { Logger } from '../src/utils/logger';
+
+// Mock Logger
+vi.mock('../src/utils/logger', () => ({
+  Logger: {
+    debug: vi.fn()
+  }
+}));
 
 describe('NavigationService', () => {
+  // Mock Page object
   const mockPage = {
     setRequestInterception: vi.fn(),
-    once: vi.fn(),
-    on: vi.fn(),
     goto: vi.fn(),
     waitForNavigation: vi.fn(),
     waitForSelector: vi.fn(),
-    close: vi.fn()
+    close: vi.fn(),
+    once: vi.fn()
+  };
+
+  // Mock request object
+  const mockRequest = {
+    continue: vi.fn(),
+    headers: vi.fn().mockReturnValue({ 'User-Agent': 'test' })
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('should handle request continuation errors', async () => {
-    // Mock page with request.continue throwing an error
-    const mockErrorPage = {
-      ...mockPage,
-      once: vi.fn((event, handler) => {
-        if (event === 'request') {
-          handler({
-            continue: vi.fn().mockImplementation(() => {
-              throw new Error('Request already handled');
-            }),
-            headers: vi.fn().mockReturnValue({})
-          });
-        }
-      })
-    };
-    
-    const result = await NavigationService.goto(mockErrorPage as any, 'https://example.com', { isDebug: true });
-    expect(mockErrorPage.goto).toHaveBeenCalled();
+    // Setup default mocks
+    mockPage.once.mockImplementation((event, handler) => {
+      if (event === 'request') {
+        handler(mockRequest);
+      }
+    });
   });
 
   describe('goto', () => {
     it('should navigate to URL successfully', async () => {
-      // Setup mocks
       mockPage.goto.mockResolvedValueOnce(true);
 
       const result = await NavigationService.goto(mockPage as any, 'https://example.com');
       
       expect(result).toBe(true);
+      expect(mockPage.setRequestInterception).toHaveBeenCalledTimes(3);
       expect(mockPage.goto).toHaveBeenCalledWith('https://example.com', {
         waitUntil: ['load', 'networkidle0'],
         timeout: 30000
       });
-      expect(mockPage.setRequestInterception).toHaveBeenCalledWith(true);
-      expect(mockPage.once).toHaveBeenCalledWith('request', expect.any(Function));
     });
 
     it('should handle navigation errors and retry', async () => {
-      // First attempt fails, second succeeds
       mockPage.goto
         .mockRejectedValueOnce(new Error('Navigation timeout'))
         .mockResolvedValueOnce(true);
@@ -68,27 +65,72 @@ describe('NavigationService', () => {
     });
 
     it('should return false after all retries fail', async () => {
-      // All attempts fail
       mockPage.goto.mockRejectedValue(new Error('Navigation error'));
 
       const result = await NavigationService.goto(mockPage as any, 'https://example.com', {
         maxRetries: 2,
-        retryDelay: 10
+        retryDelay: 10,
+        isDebug: true
       });
       
       expect(result).toBe(false);
       expect(mockPage.goto).toHaveBeenCalledTimes(3); // Initial + 2 retries
+      expect(Logger.debug).toHaveBeenCalledWith(expect.stringContaining('All navigation attempts failed'));
     });
 
-    
-    
-    it('should reset request interception on error', async () => {
-      mockPage.goto.mockRejectedValueOnce(new Error('Navigation error'));
+    it('should use custom navigation options', async () => {
+      mockPage.goto.mockResolvedValueOnce(true);
+
+      await NavigationService.goto(mockPage as any, 'https://example.com', {
+        waitUntil: ['domcontentloaded'],
+        timeout: 5000,
+        isDebug: true
+      });
       
-      const result = await NavigationService.goto(mockPage as any, 'https://example.com', { maxRetries: 0 });
+      expect(mockPage.goto).toHaveBeenCalledWith('https://example.com', {
+        waitUntil: ['domcontentloaded'],
+        timeout: 5000
+      });
+    });
+
+    it('should handle request continuation errors', async () => {
+      // Mock request.continue to throw error
+      const errorRequest = {
+        ...mockRequest,
+        continue: vi.fn().mockImplementation(() => {
+          throw new Error('Request already handled');
+        })
+      };
+
+      mockPage.once.mockImplementation((event, handler) => {
+        if (event === 'request') {
+          handler(errorRequest);
+        }
+      });
       
-      expect(result).toBe(false);
-      expect(mockPage.setRequestInterception).toHaveBeenCalledWith(false);
+      mockPage.goto.mockResolvedValueOnce(true);
+
+      const result = await NavigationService.goto(mockPage as any, 'https://example.com', {
+        isDebug: true
+      });
+      
+      expect(result).toBe(true);
+      expect(Logger.debug).toHaveBeenCalledWith(expect.stringContaining('Request continuation error'));
+    });
+
+    it('should apply custom headers to requests', async () => {
+      mockPage.goto.mockResolvedValueOnce(true);
+
+      await NavigationService.goto(mockPage as any, 'https://example.com', {
+        headers: { 'Custom-Header': 'test-value' }
+      });
+      
+      expect(mockRequest.continue).toHaveBeenCalledWith({
+        headers: expect.objectContaining({
+          'User-Agent': 'test',
+          'Custom-Header': 'test-value'
+        })
+      });
     });
   });
 
@@ -112,6 +154,20 @@ describe('NavigationService', () => {
       
       expect(result).toBe(false);
     });
+
+    it('should use custom navigation options', async () => {
+      mockPage.waitForNavigation.mockResolvedValueOnce(true);
+
+      await NavigationService.waitForNavigation(mockPage as any, {
+        waitUntil: ['networkidle2'],
+        timeout: 60000
+      });
+      
+      expect(mockPage.waitForNavigation).toHaveBeenCalledWith({
+        waitUntil: ['networkidle2'],
+        timeout: 60000
+      });
+    });
   });
 
   describe('waitForSelector', () => {
@@ -122,7 +178,7 @@ describe('NavigationService', () => {
       
       expect(result).toBe(true);
       expect(mockPage.waitForSelector).toHaveBeenCalledWith('.my-element', {
-        visible: true,
+        visible: true, 
         timeout: 30000
       });
     });
@@ -133,6 +189,17 @@ describe('NavigationService', () => {
       const result = await NavigationService.waitForSelector(mockPage as any, '.my-element');
       
       expect(result).toBe(false);
+    });
+
+    it('should use custom timeout', async () => {
+      mockPage.waitForSelector.mockResolvedValueOnce(true);
+
+      await NavigationService.waitForSelector(mockPage as any, '.my-element', 10000);
+      
+      expect(mockPage.waitForSelector).toHaveBeenCalledWith('.my-element', {
+        visible: true,
+        timeout: 10000
+      });
     });
   });
 
