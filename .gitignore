@@ -9,5 +9,3 @@ examples/dev-example.ts
 examples/*.png
 examples/logs
 examples/tmp
-docs
-!docs/.gitkeep
