@@ -2,10 +2,10 @@ name: Build Status
 on:
   release:
     types: [created]
-  # push:
-  #   branches: [main, feature/**, fix/**]
-  # pull_request:
-  #   branches: [main]
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
