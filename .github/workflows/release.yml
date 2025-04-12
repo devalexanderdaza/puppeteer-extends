@@ -47,7 +47,7 @@ jobs:
         run: pnpm install
         
       - name: Install semantic-release plugins
-        run: pnpm add -D @semantic-release/changelog @semantic-release/git
+        run: pnpm add -g semantic-release @semantic-release/changelog @semantic-release/git
 
       - name: Lint
         run: pnpm run lint:fix
@@ -65,4 +65,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+        run: semantic-release
