@@ -24,13 +24,13 @@ export class BrowserFactory {
   private static initialize(): void {
     if (!this.initialized) {
       require("tls").DEFAULT_MIN_VERSION = "TLSv1";
-      
+
       // Configure puppeteer-extra
       puppeteerExtra.use(stealthPlugin());
-      
+
       // @ts-ignore - Fix for EventEmitter warning
       puppeteerExtra.setMaxListeners = () => {};
-      
+
       this.initialized = true;
     }
   }
@@ -39,20 +39,22 @@ export class BrowserFactory {
    * Get browser instance by ID, creating it if necessary
    * @param options Browser configuration options
    */
-  public static async getBrowser(options: BrowserOptions = {}): Promise<Browser> {
+  public static async getBrowser(
+    options: BrowserOptions = {},
+  ): Promise<Browser> {
     this.initialize();
-    
+
     const instanceId = options.instanceId || "default";
-    
+
     if (!this.instances.has(instanceId)) {
       this.instances.set(instanceId, await this.createBrowser(options));
     }
-    
+
     const browser = this.instances.get(instanceId);
     if (!browser) {
       throw new Error(`Failed to get browser instance: ${instanceId}`);
     }
-    
+
     return browser;
   }
 
@@ -61,16 +63,20 @@ export class BrowserFactory {
    * @param options Browser configuration options
    * @private
    */
-  private static async createBrowser(options: BrowserOptions): Promise<Browser> {
+  private static async createBrowser(
+    options: BrowserOptions,
+  ): Promise<Browser> {
     const {
       isHeadless = true,
       isDebug = false,
       customArguments = DEFAULT_BROWSER_ARGS,
-      userDataDir = path.join(process.cwd(), "tmp/puppeteer-extends")
+      userDataDir = path.join(process.cwd(), "tmp/puppeteer-extends"),
     } = options;
 
     if (isDebug) {
-      Logger.debug(`🚧 Starting browser with instance ID: ${options.instanceId || "default"}`);
+      Logger.debug(
+        `🚧 Starting browser with instance ID: ${options.instanceId || "default"}`,
+      );
       Logger.debug(`🚧 User data directory: ${userDataDir}`);
     }
 
@@ -91,7 +97,9 @@ export class BrowserFactory {
       // Handle disconnection and cleanup
       browser.on("disconnected", () => {
         if (isDebug) {
-          Logger.debug(`🚧 Browser disconnected: ${options.instanceId || "default"}`);
+          Logger.debug(
+            `🚧 Browser disconnected: ${options.instanceId || "default"}`,
+          );
         }
         this.instances.delete(options.instanceId || "default");
       });
@@ -99,9 +107,13 @@ export class BrowserFactory {
       return browser;
     } catch (error) {
       if (isDebug) {
-        Logger.debug(`🚧 Error launching browser: ${error instanceof Error ? error.message : String(error)}`);
+        Logger.debug(
+          `🚧 Error launching browser: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
-      throw new Error(`Failed to launch browser: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to launch browser: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -109,7 +121,9 @@ export class BrowserFactory {
    * Close a specific browser instance
    * @param instanceId Browser instance ID
    */
-  public static async closeBrowser(instanceId: string = "default"): Promise<void> {
+  public static async closeBrowser(
+    instanceId: string = "default",
+  ): Promise<void> {
     const browser = this.instances.get(instanceId);
     if (browser) {
       await browser.close();

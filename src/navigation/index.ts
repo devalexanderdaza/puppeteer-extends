@@ -1,4 +1,4 @@
 /**
  * @since 2.0.0
  */
-export * from './navigation-service';
+export * from "./navigation-service";
