@@ -1,86 +1,115 @@
-import { describe, it, expect, vi } from 'vitest';
-import { PuppeteerExtends, Logger } from '../src';
-import { Browser } from 'puppeteer';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { PuppeteerExtends, Logger, BrowserOptions, NavigationOptions } from '../src';
+import { BrowserFactory } from '../src/browser';
+import { NavigationService } from '../src/navigation';
+
+// Mock dependencies
+vi.mock('../src/browser/browser-factory', () => ({
+  BrowserFactory: {
+    getBrowser: vi.fn(),
+    closeBrowser: vi.fn(),
+    closeAllBrowsers: vi.fn()
+  }
+}));
+
+vi.mock('../src/navigation/navigation-service', () => ({
+  NavigationService: {
+    goto: vi.fn(),
+    closePage: vi.fn(),
+    waitForNavigation: vi.fn(),
+    waitForSelector: vi.fn()
+  }
+}));
+
+vi.mock('../src/utils/logger', () => ({
+  Logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    configure: vi.fn()
+  }
+}));
 
 describe('Public API', () => {
+  const mockPage = {} as any;
+  
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should export PuppeteerExtends and Logger', () => {
     expect(PuppeteerExtends).toBeDefined();
     expect(Logger).toBeDefined();
   });
 
-  it('should have all required methods on PuppeteerExtends', () => {
-    expect(typeof PuppeteerExtends.getBrowser).toBe('function');
-    expect(typeof PuppeteerExtends.closeBrowser).toBe('function');
-    expect(typeof PuppeteerExtends.closeAllBrowsers).toBe('function');
-    expect(typeof PuppeteerExtends.goto).toBe('function');
-    expect(typeof PuppeteerExtends.closePage).toBe('function');
-    expect(typeof PuppeteerExtends.waitForNavigation).toBe('function');
-    expect(typeof PuppeteerExtends.waitForSelector).toBe('function');
+  it('should export type definitions', () => {
+    // Just checking that the types are exported - TypeScript will validate this
+    const options: BrowserOptions = { isHeadless: true };
+    const navOptions: NavigationOptions = { timeout: 5000 };
+    
+    expect(options).toBeDefined();
+    expect(navOptions).toBeDefined();
   });
 
-  it('should have all required methods on Logger', () => {
-    expect(typeof Logger.debug).toBe('function');
-    expect(typeof Logger.info).toBe('function');
-    expect(typeof Logger.warn).toBe('function');
-    expect(typeof Logger.error).toBe('function');
-    expect(typeof Logger.configure).toBe('function');
-  });
-});
-
-describe('PuppeteerExtends functionality', () => {
-  it('should call BrowserFactory.getBrowser when getBrowser is invoked', async () => {
-    const mockGetBrowser = vi.spyOn(PuppeteerExtends, 'getBrowser').mockImplementation(() => Promise.resolve({} as Browser));
-    const result = await PuppeteerExtends.getBrowser();
-    expect(mockGetBrowser).toHaveBeenCalled();
-    expect(result).toEqual({});
-    mockGetBrowser.mockRestore();
+  it('should have DEFAULT_BROWSER_ARGS export', () => {
+    expect(Array.isArray(PuppeteerExtends.DEFAULT_BROWSER_ARGS)).toBe(true);
+    expect(PuppeteerExtends.DEFAULT_BROWSER_ARGS.length).toBeGreaterThan(0);
+    expect(PuppeteerExtends.DEFAULT_BROWSER_ARGS).toContain('--no-sandbox');
   });
 
-  it('should call BrowserFactory.closeBrowser when closeBrowser is invoked', async () => {
-    const mockCloseBrowser = vi.spyOn(PuppeteerExtends, 'closeBrowser').mockImplementation(() => Promise.resolve());
-    const result = await PuppeteerExtends.closeBrowser('testInstance');
-    expect(mockCloseBrowser).toHaveBeenCalledWith('testInstance');
-    expect(result).toBeUndefined();
-    mockCloseBrowser.mockRestore();
+  describe('browser methods', () => {
+    it('should call BrowserFactory.getBrowser when PuppeteerExtends.getBrowser is called', async () => {
+      const options = { isHeadless: true };
+      await PuppeteerExtends.getBrowser(options);
+      
+      expect(BrowserFactory.getBrowser).toHaveBeenCalledWith(options);
+    });
+
+    it('should call BrowserFactory.closeBrowser when PuppeteerExtends.closeBrowser is called', async () => {
+      await PuppeteerExtends.closeBrowser('test-id');
+      
+      expect(BrowserFactory.closeBrowser).toHaveBeenCalledWith('test-id');
+    });
+
+    it('should call BrowserFactory.closeAllBrowsers when PuppeteerExtends.closeAllBrowsers is called', async () => {
+      await PuppeteerExtends.closeAllBrowsers();
+      
+      expect(BrowserFactory.closeAllBrowsers).toHaveBeenCalled();
+    });
   });
 
-  it('should call BrowserFactory.closeAllBrowsers when closeAllBrowsers is invoked', async () => {
-    const mockCloseAllBrowsers = vi.spyOn(PuppeteerExtends, 'closeAllBrowsers').mockImplementation(() => Promise.resolve());
-    const result = await PuppeteerExtends.closeAllBrowsers();
-    expect(mockCloseAllBrowsers).toHaveBeenCalled();
-    expect(result).toBeUndefined();
-    mockCloseAllBrowsers.mockRestore();
-  });
+  describe('navigation methods', () => {
+    it('should call NavigationService.goto when PuppeteerExtends.goto is called', async () => {
+      const url = 'https://example.com';
+      const options = { timeout: 5000 };
+      
+      await PuppeteerExtends.goto(mockPage, url, options);
+      
+      expect(NavigationService.goto).toHaveBeenCalledWith(mockPage, url, options);
+    });
 
-  it('should call NavigationService.goto when goto is invoked', async () => {
-    const mockGoto = vi.spyOn(PuppeteerExtends, 'goto').mockImplementation(() => Promise.resolve(true));
-    const result = await PuppeteerExtends.goto({}, 'http://example.com');
-    expect(mockGoto).toHaveBeenCalledWith({}, 'http://example.com');
-    expect(result).toBe(true);
-    mockGoto.mockRestore();
-  });
+    it('should call NavigationService.closePage when PuppeteerExtends.closePage is called', async () => {
+      await PuppeteerExtends.closePage(mockPage);
+      
+      expect(NavigationService.closePage).toHaveBeenCalledWith(mockPage);
+    });
 
-  it('should call NavigationService.closePage when closePage is invoked', async () => {
-    const mockClosePage = vi.spyOn(PuppeteerExtends, 'closePage').mockImplementation(() => Promise.resolve());
-    const result = await PuppeteerExtends.closePage({});
-    expect(mockClosePage).toHaveBeenCalledWith({});
-    expect(result).toBeUndefined();
-    mockClosePage.mockRestore();
-  });
+    it('should call NavigationService.waitForNavigation when PuppeteerExtends.waitForNavigation is called', async () => {
+      const options = { waitUntil: ['load'] as any, timeout: 5000 };
+      
+      await PuppeteerExtends.waitForNavigation(mockPage, options);
+      
+      expect(NavigationService.waitForNavigation).toHaveBeenCalledWith(mockPage, options);
+    });
 
-  it('should call NavigationService.waitForNavigation when waitForNavigation is invoked', async () => {
-    const mockWaitForNavigation = vi.spyOn(PuppeteerExtends, 'waitForNavigation').mockImplementation(() => Promise.resolve(true));
-    const result = await PuppeteerExtends.waitForNavigation({}, { waitUntil: ['load'], timeout: 5000 });
-    expect(mockWaitForNavigation).toHaveBeenCalledWith({}, { waitUntil: ['load'], timeout: 5000 });
-    expect(result).toBe(true);
-    mockWaitForNavigation.mockRestore();
-  });
-
-  it('should call NavigationService.waitForSelector when waitForSelector is invoked', async () => {
-    const mockWaitForSelector = vi.spyOn(PuppeteerExtends, 'waitForSelector').mockImplementation(() => Promise.resolve(true));
-    const result = await PuppeteerExtends.waitForSelector({}, '.test-selector', 3000);
-    expect(mockWaitForSelector).toHaveBeenCalledWith({}, '.test-selector', 3000);
-    expect(result).toBe(true);
-    mockWaitForSelector.mockRestore();
+    it('should call NavigationService.waitForSelector when PuppeteerExtends.waitForSelector is called', async () => {
+      const selector = '.my-element';
+      const timeout = 5000;
+      
+      await PuppeteerExtends.waitForSelector(mockPage, selector, timeout);
+      
+      expect(NavigationService.waitForSelector).toHaveBeenCalledWith(mockPage, selector, timeout);
+    });
   });
 });
