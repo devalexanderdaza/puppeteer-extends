@@ -2,7 +2,7 @@
  * puppeteer-extends
  * Easy manage and instance puppeteer browsers using a factory pattern
  *
- * @since 2.0.0
+ * @since 1.6.0
  */
 import { Page } from "puppeteer";
 import {

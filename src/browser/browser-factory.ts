@@ -1,5 +1,5 @@
 /**
- * @since 2.0.0
+ * @since 1.6.0
  */
 import puppeteer, { Browser } from "puppeteer";
 import puppeteerExtra from "puppeteer-extra";
