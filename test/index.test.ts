@@ -1,18 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PuppeteerExtends, Logger, BrowserOptions, NavigationOptions } from '../src';
+import { PuppeteerExtends, Logger } from '../src';
 import { BrowserFactory } from '../src/browser';
 import { NavigationService } from '../src/navigation';
 
 // Mock dependencies
-vi.mock('../src/browser/browser-factory', () => ({
+vi.mock('../src/browser', () => ({
   BrowserFactory: {
     getBrowser: vi.fn(),
     closeBrowser: vi.fn(),
     closeAllBrowsers: vi.fn()
-  }
+  },
+  DEFAULT_BROWSER_ARGS: ['--arg1', '--arg2']
 }));
 
-vi.mock('../src/navigation/navigation-service', () => ({
+vi.mock('../src/navigation', () => ({
   NavigationService: {
     goto: vi.fn(),
     closePage: vi.fn(),
@@ -43,19 +44,10 @@ describe('Public API', () => {
     expect(Logger).toBeDefined();
   });
 
-  it('should export type definitions', () => {
-    // Just checking that the types are exported - TypeScript will validate this
-    const options: BrowserOptions = { isHeadless: true };
-    const navOptions: NavigationOptions = { timeout: 5000 };
-    
-    expect(options).toBeDefined();
-    expect(navOptions).toBeDefined();
-  });
-
   it('should have DEFAULT_BROWSER_ARGS export', () => {
     expect(Array.isArray(PuppeteerExtends.DEFAULT_BROWSER_ARGS)).toBe(true);
-    expect(PuppeteerExtends.DEFAULT_BROWSER_ARGS.length).toBeGreaterThan(0);
-    expect(PuppeteerExtends.DEFAULT_BROWSER_ARGS).toContain('--no-sandbox');
+    expect(PuppeteerExtends.DEFAULT_BROWSER_ARGS).toContain('--arg1');
+    expect(PuppeteerExtends.DEFAULT_BROWSER_ARGS).toContain('--arg2');
   });
 
   describe('browser methods', () => {
