@@ -148,6 +148,112 @@ Logger.warn('Warning message');
 Logger.error('Error occurred', new Error('Something went wrong'));
 ```
 
+## Plugin System
+
+puppeteer-extends v1.7.0 introduces a powerful plugin system that allows extending functionality through lifecycle hooks:
+
+```typescript
+import { PuppeteerExtends, StealthPlugin, ProxyPlugin } from 'puppeteer-extends';
+
+// Register stealth plugin for improved anti-bot protection
+await PuppeteerExtends.registerPlugin(new StealthPlugin({
+  hideWebDriver: true,
+  hideChromeRuntime: true
+}));
+
+// Register proxy rotation plugin
+await PuppeteerExtends.registerPlugin(new ProxyPlugin({
+  proxies: [
+    { host: '123.45.67.89', port: 8080, username: 'user', password: 'pass' },
+    { host: '98.76.54.32', port: 8080 },
+  ],
+  rotationStrategy: 'sequential',
+  rotateOnNavigation: true,
+  rotateOnError: true
+}));
+
+// Continue with normal usage - plugins will be active
+const browser = await PuppeteerExtends.getBrowser();
+const page = await browser.newPage();
+// ...
+```
+
+### Built-in Plugins
+
+| Plugin | Description |
+|--------|-------------|
+| `StealthPlugin` | Enhances anti-bot detection protection |
+| `ProxyPlugin` | Provides proxy rotation with multiple strategies |
+
+### Creating Custom Plugins
+
+You can create custom plugins by implementing the `PuppeteerPlugin` interface:
+
+```typescript
+import { PuppeteerPlugin, PluginContext } from 'puppeteer-extends';
+
+class MyCustomPlugin implements PuppeteerPlugin {
+  name = 'my-custom-plugin';
+  
+  // Called when plugin is registered
+  async initialize(options?: any): Promise<void> {
+    console.log('Plugin initialized with options:', options);
+  }
+  
+  // Called before browser launch
+  async onBeforeBrowserLaunch(options: any, context: PluginContext): Promise<any> {
+    // Modify launch options if needed
+    return {
+      ...options,
+      args: [...options.args, '--disable-features=site-per-process']
+    };
+  }
+  
+  // Called when a new page is created
+  async onPageCreated(page: Page, context: PluginContext): Promise<void> {
+    await page.evaluateOnNewDocument(() => {
+      // Execute code in the page context
+    });
+  }
+  
+  // Called before navigation
+  async onBeforeNavigation(page: Page, url: string, options: any, context: PluginContext): Promise<void> {
+    console.log(`Navigating to: ${url}`);
+  }
+  
+  // Handle errors
+  async onError(error: Error, context: PluginContext): Promise<boolean> {
+    console.error('Plugin caught error:', error);
+    return false; // Return true if error was handled
+  }
+  
+  // Called when plugin is unregistered
+  async cleanup(): Promise<void> {
+    console.log('Plugin cleanup');
+  }
+}
+
+// Register the custom plugin
+await PuppeteerExtends.registerPlugin(new MyCustomPlugin(), { 
+  customOption: 'value' 
+});
+```
+
+### Available Plugin Hooks
+
+| Hook | Description |
+|------|-------------|
+| `initialize` | Called when plugin is registered |
+| `cleanup` | Called when plugin is unregistered |
+| `onBeforeBrowserLaunch` | Before browser instance is created |
+| `onAfterBrowserLaunch` | After browser instance is created |
+| `onBeforeBrowserClose` | Before browser instance is closed |
+| `onPageCreated` | When a new page is created |
+| `onBeforePageClose` | Before a page is closed |
+| `onBeforeNavigation` | Before navigation to a URL |
+| `onAfterNavigation` | After navigation completes (success or failure) |
+| `onError` | When an error occurs in any operation |
+
 ## API Reference
 
 ### PuppeteerExtends

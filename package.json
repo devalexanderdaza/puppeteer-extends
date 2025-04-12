@@ -42,6 +42,7 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "example": "ts-node examples/modern-example.ts",
+    "example:plugins": "ts-node examples/plugins-example.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release"
   },

@@ -1,8 +1,9 @@
 /**
- * @since 1.6.0
+ * @since 1.7.0
  */
 import { Page } from "puppeteer";
-import { Logger } from "../utils/logger";
+import { Logger } from "../utils";
+import { PluginManager, PluginContext } from "../plugins";
 
 /**
  * Navigation options
@@ -68,6 +69,12 @@ export class NavigationService {
       retryDelay = 5000,
     } = options;
 
+    // Create plugin context
+    const context: PluginContext = {
+      page,
+      options,
+    };
+
     let attempts = 0;
 
     while (attempts <= maxRetries) {
@@ -77,6 +84,9 @@ export class NavigationService {
             `🚧 Navigating to ${targetUrl} (attempt ${attempts + 1}/${maxRetries + 1})`,
           );
         }
+
+        // Execute plugin hook before navigation
+        await PluginManager.executeHook('onBeforeNavigation', context, page, targetUrl, options);
 
         // Reset request interception before setting it again
         await page.setRequestInterception(false);
@@ -116,6 +126,9 @@ export class NavigationService {
           Logger.debug(`🚧 Successfully navigated to ${targetUrl}`);
         }
 
+        // Execute plugin hook after successful navigation
+        await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, true);
+
         return true;
       } catch (error) {
         attempts++;
@@ -137,17 +150,39 @@ export class NavigationService {
           // Ignore errors during cleanup
         }
 
-        if (attempts <= maxRetries) {
+        // Execute error hook and check if any plugin handled it
+        const handled = await PluginManager.executeErrorHook(
+          error instanceof Error ? error : new Error(String(error)),
+          { ...context }
+        );
+
+        // If error wasn't handled by any plugin, continue with retries
+        if (!handled && attempts <= maxRetries) {
           // Wait before retrying
           await new Promise((resolve) => setTimeout(resolve, retryDelay));
-        } else {
+        } else if (!handled) {
           if (isDebug) {
             Logger.debug(`🚧 All navigation attempts failed for ${targetUrl}`);
           }
+          
+          // Execute plugin hook after failed navigation
+          await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
+          
           return false;
+        } else {
+          // If a plugin handled the error, try again immediately if we have attempts left
+          if (attempts <= maxRetries) {
+            continue;
+          } else {
+            await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
+            return false;
+          }
         }
       }
     }
+
+    // Execute plugin hook after all navigation attempts failed
+    await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
 
     return false;
   }
@@ -157,9 +192,23 @@ export class NavigationService {
    * @param page Puppeteer Page instance
    */
   public static async closePage(page: Page): Promise<void> {
+    // Create plugin context
+    const context: PluginContext = {
+      page,
+    };
+
     try {
+      // Execute plugin hook before page close
+      await PluginManager.executeHook('onBeforePageClose', context, page);
+      
       await page.close();
     } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        context
+      );
+      
       // Ignore errors during page closing
     }
   }
@@ -182,6 +231,12 @@ export class NavigationService {
       });
       return true;
     } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options }
+      );
+      
       return false;
     }
   }
@@ -201,6 +256,12 @@ export class NavigationService {
       await page.waitForSelector(selector, { visible: true, timeout });
       return true;
     } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { selector, timeout } }
+      );
+      
       return false;
     }
   }

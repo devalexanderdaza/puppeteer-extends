@@ -2,7 +2,7 @@
  * puppeteer-extends
  * Easy manage and instance puppeteer browsers using a factory pattern
  *
- * @since 1.6.0
+ * @since 1.7.0
  */
 import { Page } from "puppeteer";
 import {
@@ -12,6 +12,7 @@ import {
 } from "./browser";
 import { NavigationService, NavigationOptions } from "./navigation";
 import { Logger } from "./utils";
+import { PluginManager, PuppeteerPlugin, PluginContext } from "./plugins";
 
 /**
  * PuppeteerExtends API
@@ -71,6 +72,33 @@ const PuppeteerExtends = {
     NavigationService.waitForSelector(page, selector, timeout),
 
   /**
+   * Register a plugin
+   * @param plugin Plugin implementation
+   * @param options Plugin options
+   */
+  registerPlugin: (plugin: PuppeteerPlugin, options?: Record<string, any>) =>
+    PluginManager.registerPlugin(plugin, options),
+
+  /**
+   * Unregister a plugin
+   * @param pluginName Plugin name
+   */
+  unregisterPlugin: (pluginName: string) =>
+    PluginManager.unregisterPlugin(pluginName),
+
+  /**
+   * Get a plugin by name
+   * @param pluginName Plugin name
+   */
+  getPlugin: (pluginName: string) =>
+    PluginManager.getPlugin(pluginName),
+
+  /**
+   * Get all registered plugins
+   */
+  getAllPlugins: () => PluginManager.getAllPlugins(),
+
+  /**
    * Default browser arguments
    */
   DEFAULT_BROWSER_ARGS,
@@ -80,7 +108,7 @@ const PuppeteerExtends = {
 export { PuppeteerExtends, Logger };
 
 // Export types for better developer experience
-export { BrowserOptions, NavigationOptions };
+export { BrowserOptions, NavigationOptions, PuppeteerPlugin, PluginContext };
 
 // Default export for CommonJS compatibility
 export default PuppeteerExtends;
