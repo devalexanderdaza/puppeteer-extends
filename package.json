@@ -23,7 +23,6 @@
       "url": "https://github.com/devalexanderdaza"
     }
   ],
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
