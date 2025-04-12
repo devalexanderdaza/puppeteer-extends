@@ -50,7 +50,7 @@ jobs:
         run: pnpm run lint:fix
 
       - name: Prettier
-        run: pnpm run prettier:fix
+        run: pnpm run format
 
       - name: Test
         run: pnpm run test
