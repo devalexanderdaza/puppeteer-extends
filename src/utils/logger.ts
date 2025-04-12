@@ -1,5 +1,5 @@
 /**
- * @since 2.0.0
+ * @since 1.6.0
  */
 import { FolderLogger, ILogOption } from "folder-logger";
 import path from "path";

@@ -14,12 +14,12 @@ jobs:
       matrix:
         node-version: [20.x, 22.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       
@@ -57,11 +57,6 @@ jobs:
       
       - name: Coverage
         run: pnpm run test:coverage
-      
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-      
+              
       - name: Build
         run: pnpm run build

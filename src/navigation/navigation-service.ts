@@ -1,5 +1,5 @@
 /**
- * @since 2.0.0
+ * @since 1.6.0
  */
 import { Page } from "puppeteer";
 import { Logger } from "../utils/logger";
