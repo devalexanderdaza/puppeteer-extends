@@ -1,3 +1,13 @@
+# [1.6.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.5.0...v1.6.0) (2025-04-12)
+
+
+### Features
+
+* **tests:** add comprehensive tests for PuppeteerExtends and Logger ([0b207b6](https://github.com/devalexanderdaza/puppeteer-extends/commit/0b207b6d8e4f4ae8556e2e6258115b39083ace73))
+* **tests:** enhance test suite for PuppeteerExtends and Logger functionality ([163f48e](https://github.com/devalexanderdaza/puppeteer-extends/commit/163f48e9ea9912042e4b5b911a547f592a12ec95))
+* **tests:** refactor mocks and remove unused type exports in index tests ([a92c201](https://github.com/devalexanderdaza/puppeteer-extends/commit/a92c20136c9cf6c83e4f9e07666a1327c78a086d))
+* **tests:** refactor NavigationService tests and enhance coverage options ([b0b60e9](https://github.com/devalexanderdaza/puppeteer-extends/commit/b0b60e9f422b450b63e355c0fd98d60fae873af3))
+
 # [1.5.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.4.2...v1.5.0) (2021-10-30)
 
 
