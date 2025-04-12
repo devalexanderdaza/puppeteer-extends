@@ -2,7 +2,7 @@
  * @since 1.7.0
  */
 import { PuppeteerPlugin, PluginContext } from "../plugin-interface";
-import { Logger } from "../../utils";
+import { Logger } from "../../utils/logger";
 
 export interface Proxy {
   host: string;
@@ -45,31 +45,36 @@ export class ProxyPlugin implements PuppeteerPlugin {
   name = "proxy-plugin";
   version = "1.0.0";
   
-  private options: ProxyPluginOptions = {
-    proxies: [],
-    rotationStrategy: "sequential",
-    rotateOnNavigation: true,
-    rotateOnError: true,
-  };
-  
+  private options: ProxyPluginOptions;
   private currentProxyIndex = 0;
   
   constructor(options: ProxyPluginOptions) {
-    this.options = { ...this.options, ...options };
+    this.options = {
+      rotationStrategy: "sequential",
+      rotateOnNavigation: true,
+      rotateOnError: true,
+      ...options,
+      proxies: options.proxies || []
+    };
     
     if (!options.proxies || options.proxies.length === 0) {
       throw new Error("ProxyPlugin requires at least one proxy");
     }
   }
   
-  async initialize(options?: ProxyPluginOptions | Record<string, any>): Promise<void> {
+  // Debemos usar la misma firma que en la interfaz PuppeteerPlugin
+  initialize = async (options?: Record<string, any>): Promise<void> => {
     if (options) {
-        this.options = { ...this.options, ...options };
-      }
-      Logger.debug(`🔄 Proxy plugin initialized with ${this.options.proxies.length} proxies`);
+      // Convertir Record<string, any> a ProxyPluginOptions
+      this.options = { 
+        ...this.options,
+        ...options as unknown as ProxyPluginOptions
+      };
+    }
+    Logger.debug(`🔄 Proxy plugin initialized with ${this.options.proxies.length} proxies`);
   }
   
-  async onBeforeBrowserLaunch(options: any, context: PluginContext): Promise<any> {
+  onBeforeBrowserLaunch = async (options: any, context: PluginContext): Promise<any> => {
     const proxy = this.getCurrentProxy();
     const args = options.args || [];
     
@@ -100,14 +105,14 @@ export class ProxyPlugin implements PuppeteerPlugin {
     };
   }
   
-  async onBeforeNavigation(page: any, url: string, options: any, context: PluginContext): Promise<void> {
+  onBeforeNavigation = async (page: any, url: string, options: any, context: PluginContext): Promise<void> => {
     if (this.options.rotateOnNavigation && context.browser) {
       this.rotateProxy();
       Logger.debug(`🔄 Rotated proxy before navigation to: ${url}`);
     }
   }
   
-  async onError(error: Error, context: PluginContext): Promise<boolean> {
+  onError = async (error: Error, context: PluginContext): Promise<boolean> => {
     if (
       this.options.rotateOnError &&
       error.message.includes('net::') && 
@@ -120,7 +125,7 @@ export class ProxyPlugin implements PuppeteerPlugin {
     return false;
   }
   
-  async cleanup(): Promise<void> {
+  cleanup = async (): Promise<void> => {
     Logger.debug(`🔄 Proxy plugin cleanup complete`);
   }
   

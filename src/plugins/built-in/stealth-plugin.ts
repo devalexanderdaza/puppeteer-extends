@@ -36,14 +36,17 @@ export class StealthPlugin implements PuppeteerPlugin {
     this.options = { ...this.options, ...options };
   }
   
-  async initialize(options?: StealthPluginOptions): Promise<void> {
+  initialize = async (options?: Record<string, any>): Promise<void> => {
     if (options) {
-      this.options = { ...this.options, ...options };
+      this.options = { 
+        ...this.options, 
+        ...options as unknown as StealthPluginOptions 
+      };
     }
     Logger.debug(`🥷 Stealth plugin initialized`);
   }
   
-  async onPageCreated(page: Page, context: PluginContext): Promise<void> {
+  onPageCreated = async (page: Page, context: PluginContext): Promise<void> => {
     Logger.debug(`🥷 Applying stealth mode to new page`);
     
     // Apply additional page-level stealth techniques
@@ -62,7 +65,7 @@ export class StealthPlugin implements PuppeteerPlugin {
     }
   }
   
-  async cleanup(): Promise<void> {
+  cleanup = async (): Promise<void> => {
     Logger.debug(`🥷 Stealth plugin cleanup complete`);
   }
 }

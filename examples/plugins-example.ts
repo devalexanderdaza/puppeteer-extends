@@ -1,5 +1,5 @@
 import { PuppeteerExtends, Logger } from '../src';
-import { StealthPlugin, ProxyPlugin } from '../src/plugins';
+import { StealthPlugin } from '../src/plugins';
 import { join } from 'path';
 
 // Configure logger
@@ -15,18 +15,6 @@ async function runPluginsExample() {
       hideChromeRuntime: true
     }));
     Logger.info('🥷 Stealth plugin registered');
-    
-    // Register proxy plugin with multiple proxies
-    await PuppeteerExtends.registerPlugin(new ProxyPlugin({
-      proxies: [
-        { host: '127.0.0.1', port: 8080 },
-        { host: '127.0.0.1', port: 8081 },
-      ],
-      rotationStrategy: 'sequential',
-      rotateOnNavigation: true,
-      rotateOnError: true
-    }));
-    Logger.info('🔄 Proxy plugin registered');
     
     // Get browser with plugins applied
     const browser = await PuppeteerExtends.getBrowser({
@@ -71,7 +59,7 @@ async function runPluginsExample() {
     
     return { success: true };
   } catch (error) {
-    Logger.error('❌ Error in example', error);
+    Logger.error('❌ Error in example', error instanceof Error ? error : String(error));
     await PuppeteerExtends.closeAllBrowsers();
     return { success: false, error };
   }
@@ -83,7 +71,7 @@ runPluginsExample()
     if (result.success) {
       Logger.info('✅ Example completed successfully');
     } else {
-      Logger.error('❌ Example failed', result.error);
+      Logger.error('❌ Example failed', result.error instanceof Error ? result.error : String(result.error));
       process.exit(1);
     }
   })
