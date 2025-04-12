@@ -32,7 +32,7 @@
   "scripts": {
     "prepublishOnly": "pnpm run build",
     "clean": "rimraf dist",
-    "build": "tsc --build --incremental --verbose .",
+    "build": "tsc --build --incremental --verbose . && pnpm run docs",
     "dev": "tsc --watch",
     "docs": "typedoc --out docs src/index.ts && cp CNAME docs/ && cp README.md docs/",
     "docs:dev": "typedoc --watch src/index.ts",
