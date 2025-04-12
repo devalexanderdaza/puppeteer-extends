@@ -4,8 +4,9 @@ dist
 node_modules
 coverage
 logs
-# tmp
+tmp
 examples/dev-example.ts
-# examples/*.png
-# examples/logs
-# examples/tmp
+examples/*.png
+examples/logs
+examples/tmp
+docs
