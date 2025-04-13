@@ -4,6 +4,7 @@
 import { Page } from "puppeteer";
 import { Logger } from "../utils";
 import { PluginManager, PluginContext } from "../plugins";
+import { Events, PuppeteerEvents, NavigationEventParams, ErrorEventParams } from "../events";
 
 /**
  * Navigation options
@@ -85,6 +86,13 @@ export class NavigationService {
           );
         }
 
+        // Emit navigation started event
+        await Events.emitAsync(PuppeteerEvents.NAVIGATION_STARTED, {
+          page,
+          url: targetUrl,
+          options
+        } as NavigationEventParams);
+
         // Execute plugin hook before navigation
         await PluginManager.executeHook('onBeforeNavigation', context, page, targetUrl, options);
 
@@ -107,10 +115,11 @@ export class NavigationService {
             // Request may have been handled already
             if (isDebug) {
               Logger.debug(
-                `🚧 Request continuation error: ${e instanceof Error ? e.message : String(e)}`,
+                `🚧 Request continuation error: ${e instanceof Error ? e : String(e)}`,
               );
             }
-            request.continue();
+            // TODO - Validate if this is the right way to handle this
+            // request.continue();
           }
         });
 
@@ -121,33 +130,42 @@ export class NavigationService {
         });
 
         // Reset request interception after navigation
-        // await page.setRequestInterception(false);
+        await page.setRequestInterception(false);
 
         if (isDebug) {
           Logger.debug(`🚧 Successfully navigated to ${targetUrl}`);
         }
+
+        // Emit navigation succeeded event
+        await Events.emitAsync(PuppeteerEvents.NAVIGATION_SUCCEEDED, {
+          page,
+          url: targetUrl,
+          options
+        } as NavigationEventParams);
 
         // Execute plugin hook after successful navigation
         await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, true);
 
         return true;
       } catch (error) {
-        console.debug(
-          `🚧 Navigation error: ${error instanceof Error ? error.message : String(error)}`,
-        );
-        console.error(error);
-
         attempts++;
 
         if (isDebug) {
           Logger.debug(
-            `🚧 Navigation error: ${error instanceof Error ? error.message : String(error)}`,
+            `🚧 Navigation error: ${error instanceof Error ? error : String(error)}`,
           );
 
           if (attempts <= maxRetries) {
             Logger.debug(`🚧 Retrying in ${retryDelay}ms...`);
           }
         }
+
+        // Emit navigation error event
+        await Events.emitAsync(PuppeteerEvents.NAVIGATION_ERROR, {
+          error: error instanceof Error ? error : new Error(String(error)),
+          source: 'navigation',
+          context: { page, url: targetUrl, options }
+        } as ErrorEventParams);
 
         // Reset request interception if it failed
         try {
@@ -170,6 +188,14 @@ export class NavigationService {
           if (isDebug) {
             Logger.debug(`🚧 All navigation attempts failed for ${targetUrl}`);
           }
+
+          // Emit navigation failed event
+          await Events.emitAsync(PuppeteerEvents.NAVIGATION_FAILED, {
+            page,
+            url: targetUrl,
+            options,
+            error: error instanceof Error ? error : new Error(String(error))
+          } as NavigationEventParams);
           
           // Execute plugin hook after failed navigation
           await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
@@ -189,6 +215,13 @@ export class NavigationService {
 
     // Execute plugin hook after all navigation attempts failed
     await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
+    
+    // Emit navigation failed event
+    await Events.emitAsync(PuppeteerEvents.NAVIGATION_FAILED, {
+      page,
+      url: targetUrl,
+      options
+    } as NavigationEventParams);
 
     return false;
   }
@@ -243,6 +276,13 @@ export class NavigationService {
         { page, options }
       );
       
+      // Emit navigation error event
+      await Events.emitAsync(PuppeteerEvents.NAVIGATION_ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'waitForNavigation',
+        context: { page, options }
+      } as ErrorEventParams);
+      
       return false;
     }
   }
@@ -267,6 +307,13 @@ export class NavigationService {
         error instanceof Error ? error : new Error(String(error)),
         { page, options: { selector, timeout } }
       );
+      
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'waitForSelector',
+        context: { page, selector, timeout }
+      } as ErrorEventParams);
       
       return false;
     }
@@ -309,6 +356,13 @@ export class NavigationService {
         error instanceof Error ? error : new Error(String(error)),
         { page, options: { selector, ...options } }
       );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'click',
+        context: { page, selector, options }
+      } as ErrorEventParams);
       
       throw error;
     }
@@ -337,6 +391,13 @@ export class NavigationService {
         error instanceof Error ? error : new Error(String(error)),
         { page, options: { selector, text, ...options } }
       );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'type',
+        context: { page, selector, text, options }
+      } as ErrorEventParams);
       
       throw error;
     }
@@ -360,6 +421,13 @@ export class NavigationService {
         error instanceof Error ? error : new Error(String(error)),
         { page, options: { fn, args } }
       );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'evaluate',
+        context: { page, fn, args }
+      } as ErrorEventParams);
       
       throw error;
     }
@@ -377,6 +445,13 @@ export class NavigationService {
         error instanceof Error ? error : new Error(String(error)),
         { page, options: {} }
       );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'getContent',
+        context: { page, options: {} }
+      } as ErrorEventParams);
       
       throw error;
     }

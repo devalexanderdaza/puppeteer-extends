@@ -4,7 +4,8 @@
 import fs from 'fs';
 import path from 'path';
 import { Browser, Page } from 'puppeteer';
-import { Logger } from '../utils/logger';
+import { Logger } from "../utils/logger";
+import { Events, PuppeteerEvents, SessionEventParams } from "../events";
 
 export interface Cookie {
   name: string;
@@ -219,6 +220,14 @@ export class SessionManager {
         await page.setUserAgent(this.sessionData.userAgent);
         Logger.debug(`Applied userAgent: ${this.sessionData.userAgent}`);
       }
+
+      // Emit session applied event
+      await Events.emitAsync(PuppeteerEvents.SESSION_APPLIED, {
+        sessionName: this.options.name || 'default',
+        page,
+        cookies: this.sessionData.cookies.length,
+        storageItems: Object.keys(this.sessionData.storage.localStorage || {}).length
+      } as SessionEventParams);
     } catch (error) {
       Logger.error('Failed to apply session to page', error instanceof Error ? error : String(error));
       throw new Error(`Failed to apply session: ${error instanceof Error ? error.message : String(error)}`);
@@ -290,6 +299,14 @@ export class SessionManager {
       
       // Save the session data
       this.saveSession();
+      
+      // Emit session extracted event
+      await Events.emitAsync(PuppeteerEvents.SESSION_EXTRACTED, {
+        sessionName: this.options.name || 'default',
+        page,
+        cookies: this.sessionData.cookies.length,
+        storageItems: Object.keys(this.sessionData.storage.localStorage || {}).length
+      } as SessionEventParams);
     } catch (error) {
       Logger.error('Failed to extract session from page', error instanceof Error ? error : String(error));
       throw new Error(`Failed to extract session: ${error instanceof Error ? error.message : String(error)}`);
@@ -332,6 +349,11 @@ export class SessionManager {
     
     this.saveSession();
     Logger.debug('Session cleared');
+    
+    // Emit session cleared event
+    Events.emit(PuppeteerEvents.SESSION_CLEARED, {
+      sessionName: this.options.name || 'default'
+    } as SessionEventParams);
   }
   
   /**

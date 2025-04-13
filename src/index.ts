@@ -14,6 +14,7 @@ import { NavigationService, NavigationOptions } from "./navigation";
 import { Logger } from "./utils";
 import { PluginManager, PuppeteerPlugin, PluginContext } from "./plugins";
 import { SessionManager, SessionOptions, SessionData } from "./session";
+import { Events, PuppeteerEvents, EventEmitter } from "./events";
 
 /**
  * PuppeteerExtends API
@@ -119,7 +120,7 @@ const PuppeteerExtends = {
 };
 
 // Export modules
-export { PuppeteerExtends, Logger, SessionManager };
+export { PuppeteerExtends, Logger, SessionManager, Events, PuppeteerEvents };
 
 // Export types for better developer experience
 export { BrowserOptions, NavigationOptions, PuppeteerPlugin, PluginContext, SessionOptions, SessionData };

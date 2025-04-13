@@ -335,6 +335,79 @@ await PuppeteerExtends.goto(page, 'https://example.com');
 
 *Only available in SessionPlugin
 
+## Event System
+
+puppeteer-extends v1.7.0 includes a powerful event system that allows you to react to various lifecycle events:
+
+```typescript
+import { PuppeteerExtends, Events, PuppeteerEvents } from 'puppeteer-extends';
+
+// Listen for browser creation
+Events.on(PuppeteerEvents.BROWSER_CREATED, (params) => {
+  console.log(`Browser created with ID: ${params.instanceId}`);
+});
+
+// Listen for navigation events
+Events.on(PuppeteerEvents.NAVIGATION_STARTED, (params) => {
+  console.log(`Navigation started to: ${params.url}`);
+});
+
+Events.on(PuppeteerEvents.NAVIGATION_SUCCEEDED, (params) => {
+  console.log(`Successfully navigated to: ${params.url}`);
+});
+
+// Listen for errors
+Events.on(PuppeteerEvents.ERROR, (params) => {
+  console.error(`Error in ${params.source}: ${params.error.message}`);
+});
+
+// Use one-time listeners
+Events.once(PuppeteerEvents.PAGE_CREATED, (params) => {
+  console.log('First page created!');
+});
+
+// Normal usage of puppeteer-extends will trigger these events
+const browser = await PuppeteerExtends.getBrowser();
+const page = await browser.newPage();
+await PuppeteerExtends.goto(page, 'https://example.com');
+```
+
+### Supported Events
+
+| Event Type | Description |
+|------------|-------------|
+| `BROWSER_CREATED` | Browser instance created |
+| `BROWSER_CLOSED` | Browser instance closed |
+| `PAGE_CREATED` | New page created |
+| `PAGE_CLOSED` | Page closed |
+| `NAVIGATION_STARTED` | Navigation to URL started |
+| `NAVIGATION_SUCCEEDED` | Navigation completed successfully |
+| `NAVIGATION_FAILED` | Navigation failed after retries |
+| `ERROR` | Generic error occurred |
+| `NAVIGATION_ERROR` | Error during navigation |
+| `BROWSER_ERROR` | Error in browser operations |
+| `PAGE_ERROR` | Error in page operations |
+| `SESSION_APPLIED` | Session data applied to page |
+| `SESSION_EXTRACTED` | Session data extracted from page |
+| `SESSION_CLEARED` | Session data cleared |
+| `PLUGIN_REGISTERED` | Plugin registered |
+| `PLUGIN_UNREGISTERED` | Plugin unregistered |
+
+### Asynchronous Event Handling
+
+You can use asynchronous event handlers and wait for them:
+
+```typescript
+// Register async event handler
+Events.on(PuppeteerEvents.NAVIGATION_SUCCEEDED, async (params) => {
+  // Do something asynchronous
+  await saveToDatabase(params.url);
+});
+
+// Emit event and wait for all handlers to complete
+await Events.emitAsync(PuppeteerEvents.CUSTOM_EVENT, { data: 'value' });
+```
+
 ## API Reference
 
 ### PuppeteerExtends

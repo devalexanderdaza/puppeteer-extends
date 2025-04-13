@@ -3,6 +3,7 @@
  */
 import { PuppeteerPlugin, PluginContext } from './plugin-interface';
 import { Logger } from '../utils';
+import { Events, PuppeteerEvents, PluginEventParams } from '../events';
 
 /**
  * Manages plugin registration and execution
@@ -36,6 +37,12 @@ export class PluginManager {
     
     this.plugins.set(plugin.name, plugin);
     Logger.debug(`Plugin '${plugin.name}' registered successfully`);
+
+    // Emit plugin registered event
+    await Events.emitAsync(PuppeteerEvents.PLUGIN_REGISTERED, {
+      pluginName: plugin.name,
+      options
+    } as PluginEventParams);
   }
   
   /**
@@ -60,6 +67,12 @@ export class PluginManager {
     
     this.plugins.delete(pluginName);
     Logger.debug(`Plugin '${pluginName}' unregistered`);
+
+    // Emit plugin unregistered event
+    await Events.emitAsync(PuppeteerEvents.PLUGIN_UNREGISTERED, {
+      pluginName: plugin.name
+    } as PluginEventParams);
+
     return true;
   }
   
@@ -98,6 +111,13 @@ export class PluginManager {
         } catch (error) {
           Logger.error(`Error executing hook '${hookName}' in plugin '${plugin.name}'`, error instanceof Error ? error : String(error));
           
+          // Emit error event
+          await Events.emitAsync(PuppeteerEvents.ERROR, {
+            error: error instanceof Error ? error : new Error(String(error)),
+            source: `plugin:${plugin.name}`,
+            context: { hookName, args }
+          });
+
           // If it's an error hook, we don't want to call the error hook again
           if (hookName !== 'onError' && plugin.onError) {
             try {
@@ -125,6 +145,13 @@ export class PluginManager {
     context: PluginContext
   ): Promise<boolean> {
     let handled = false;
+
+    // Emit global error event
+    await Events.emitAsync(PuppeteerEvents.ERROR, {
+      error,
+      source: 'plugin-manager',
+      context
+    });
     
     for (const plugin of this.plugins.values()) {
       if (plugin.onError) {

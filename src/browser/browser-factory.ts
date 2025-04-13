@@ -9,6 +9,7 @@ import path from "path";
 import { BrowserOptions, DEFAULT_BROWSER_ARGS } from "./browser-options";
 import { Logger } from "../utils/logger";
 import { PluginManager, PluginContext } from "../plugins";
+import { Events, PuppeteerEvents, BrowserEventParams, PageEventParams, ErrorEventParams } from "../events";
 
 /**
  * BrowserFactory manages multiple browser instances
@@ -112,6 +113,13 @@ export class BrowserFactory {
         Logger.debug(`🚧 Browser successfully started`);
       }
 
+      // Emit browser created event
+      await Events.emitAsync(PuppeteerEvents.BROWSER_CREATED, {
+        browser,
+        instanceId: options.instanceId || "default",
+        options
+      } as BrowserEventParams);
+
       // Update context with browser
       context.browser = browser;
 
@@ -131,6 +139,13 @@ export class BrowserFactory {
           page,
           options,
         };
+
+        // Emit page created event
+        await Events.emitAsync(PuppeteerEvents.PAGE_CREATED, {
+          page,
+          browser,
+          instanceId: options.instanceId || "default",
+        } as PageEventParams);
         
         // Execute plugin hook for page creation
         await PluginManager.executeHook('onPageCreated', pageContext, page);
@@ -138,12 +153,40 @@ export class BrowserFactory {
         // Override close method to run plugin hooks
         const originalClose = page.close.bind(page);
         page.close = async (options?: any) => {
+          // Emit page closing event
+          await Events.emitAsync(PuppeteerEvents.PAGE_CLOSED, {
+            page,
+            browser,
+            instanceId: options.instanceId || "default",
+          } as PageEventParams);
+
           // Execute plugin hook before page close
           await PluginManager.executeHook('onBeforePageClose', pageContext, page);
           
           // Close the page
           return originalClose(options);
         };
+
+        // Set up error handling for page errors
+        page.on('error', async (error) => {
+          // Emit page error event
+          await Events.emitAsync(PuppeteerEvents.PAGE_ERROR, {
+            error,
+            source: 'page',
+            context: {
+              page,
+              browser,
+              instanceId: options.instanceId || "default",
+            }
+          } as ErrorEventParams);
+          
+          // Execute error hook
+          await PluginManager.executeErrorHook(error, { 
+            page, 
+            browser,
+            options
+          });
+        });
         
         return page;
       };
@@ -156,6 +199,13 @@ export class BrowserFactory {
           );
         }
         
+        // Emit browser closed event
+        await Events.emitAsync(PuppeteerEvents.BROWSER_CLOSED, {
+          browser,
+          instanceId: options.instanceId || "default",
+          options
+        } as BrowserEventParams);
+
         // Execute plugin hook before browser disconnect
         await PluginManager.executeHook('onBeforeBrowserClose', context, browser);
         
@@ -170,6 +220,13 @@ export class BrowserFactory {
         );
       }
       
+      // Emit browser error event
+      await Events.emitAsync(PuppeteerEvents.BROWSER_ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'browser',
+        context: { options }
+      } as ErrorEventParams);
+
       // Execute error hook
       await PluginManager.executeErrorHook(
         error instanceof Error ? error : new Error(String(error)), 
@@ -196,6 +253,13 @@ export class BrowserFactory {
         browser,
         options: { instanceId },
       };
+
+      // Emit browser closing event
+      await Events.emitAsync(PuppeteerEvents.BROWSER_CLOSED, {
+        browser,
+        instanceId,
+        options: { instanceId }
+      } as BrowserEventParams);
       
       // Execute plugin hook before browser close
       await PluginManager.executeHook('onBeforeBrowserClose', context, browser);
@@ -215,6 +279,13 @@ export class BrowserFactory {
         browser,
         options: { instanceId: id },
       };
+
+      // Emit browser closing event
+      await Events.emitAsync(PuppeteerEvents.BROWSER_CLOSED, {
+        browser,
+        instanceId: id,
+        options: { instanceId: id }
+      } as BrowserEventParams);
       
       // Execute plugin hook before browser close
       await PluginManager.executeHook('onBeforeBrowserClose', context, browser);

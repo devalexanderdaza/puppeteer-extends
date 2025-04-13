@@ -44,6 +44,7 @@
     "example": "ts-node examples/modern-example.ts",
     "example:plugins": "ts-node examples/plugins-example.ts",
     "example:session": "ts-node examples/session-example.ts",
+    "example:events": "ts-node examples/events-example.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release"
   },
