@@ -1,6 +1,6 @@
 {
   "name": "puppeteer-extends",
-  "version": "1.6.0",
+  "version": "1.8.1",
   "description": "Modern, factory-based management for Puppeteer with multiple browser instances and enhanced navigation",
   "homepage": "https://github.com/devalexanderdaza/puppeteer-extends",
   "bugs": {

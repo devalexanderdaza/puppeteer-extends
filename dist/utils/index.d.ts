@@ -1,4 +1,5 @@
 /**
- * @since 2.0.0
+ * @since 1.6.0
  */
+export * from "./common";
 export * from "./logger";

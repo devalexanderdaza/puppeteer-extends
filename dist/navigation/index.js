@@ -15,7 +15,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * @since 2.0.0
+ * @since 1.6.0
  */
 __exportStar(require("./navigation-service"), exports);
 //# sourceMappingURL=index.js.map

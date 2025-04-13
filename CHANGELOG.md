@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.8.0...v1.8.1) (2025-04-13)
+
+
+### Bug Fixes
+
+* **release:** migrate to module.exports and streamline plugin configuration ([8dc5229](https://github.com/devalexanderdaza/puppeteer-extends/commit/8dc5229b9cb6c163fc69d843cbf013296c904d3a))
+
 # [1.6.0](https://github.com/devalexanderdaza/puppeteer-extends/compare/v1.5.0...v1.6.0) (2025-04-12)
 
 

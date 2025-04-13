@@ -1,5 +1,5 @@
 /**
- * @since 2.0.0
+ * @since 1.7.0
  */
 import { Page } from "puppeteer";
 /**
@@ -10,7 +10,7 @@ export interface NavigationOptions {
      * Wait until specified events to consider navigation successful
      * @default ["load", "networkidle0"]
      */
-    waitUntil?: ("load" | "domcontentloaded" | "networkidle0" | "networkidle2")[];
+    waitUntil?: Array<"load" | "domcontentloaded" | "networkidle0" | "networkidle2">;
     /**
      * Enable debug logging
      * @default false
@@ -65,4 +65,45 @@ export declare class NavigationService {
      * @param timeout Maximum wait time in milliseconds
      */
     static waitForSelector(page: Page, selector: string, timeout?: number): Promise<boolean>;
+    /**
+     * Get the current URL of the page
+     * @param page Puppeteer Page instance
+     */
+    static getCurrentUrl(page: Page): string;
+    /**
+     * Get the current page title
+     * @param page Puppeteer Page instance
+     */
+    static getPageTitle(page: Page): Promise<string>;
+    /**
+     * Click on a selector
+     * @param page Puppeteer Page instance
+     * @param selector CSS selector to click
+     * @param options Click options
+     */
+    static click(page: Page, selector: string, options?: {
+        delay?: number;
+    }): Promise<void>;
+    /**
+     * Type text into an input field
+     * @param page Puppeteer Page instance
+     * @param selector CSS selector of the input field
+     * @param text Text to type
+     * @param options Type options
+     */
+    static type(page: Page, selector: string, text: string, options?: {
+        delay?: number;
+    }): Promise<void>;
+    /**
+     * Evaluate a function in the context of the page
+     * @param page Puppeteer Page instance
+     * @param fn Function to evaluate
+     * @param args Arguments to pass to the function
+     */
+    static evaluate<T>(page: Page, fn: (...args: any[]) => T, ...args: any[]): Promise<T>;
+    /**
+     * Get the page content
+     * @param page Puppeteer Page instance
+     */
+    static getContent(page: Page): Promise<string>;
 }

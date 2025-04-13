@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 /**
- * @since 2.0.0
+ * @since 1.6.0
  */
 const folder_logger_1 = require("folder-logger");
 const path_1 = __importDefault(require("path"));
