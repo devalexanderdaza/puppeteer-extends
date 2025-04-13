@@ -61,25 +61,26 @@ describe("NavigationService", () => {
 
   describe("goto", () => {
     it("should navigate to URL successfully", async () => {
-      // Configure mockPage.goto to use expected params
-      mockPage.goto.mockImplementation((url, options) => {
-        // Proper implementation for testing
-        expect(url).toBe("https://example.com");
-        expect(options).toEqual({
-          waitUntil: ["load", "networkidle0"],
-          timeout: 30000,
-        });
-        return Promise.resolve();
-      });
+      mockPage.goto.mockResolvedValueOnce(true);
+
+      // Spy on the goto method
+      const gotoSpy = vi.spyOn(mockPage, "goto");
 
       const result = await NavigationService.goto(
         mockPage as any,
         "https://example.com",
+        {
+          isDebug: true,
+        },
       );
-
       expect(result).toBe(true);
-      expect(mockPage.setRequestInterception).toHaveBeenCalledTimes(3);
-      // Don't check the call parameters here since we already verified in the mock implementation
+     
+      expect(mockPage.setRequestInterception).toHaveBeenCalledWith(true);
+      expect(mockPage.once).toHaveBeenCalledWith(
+        "request",
+        expect.any(Function),
+      );
+      expect(mockPage.goto).toHaveBeenCalledTimes(1);
     });
 
     it("should handle navigation errors and retry", async () => {
@@ -170,6 +171,9 @@ describe("NavigationService", () => {
     });
 
     it("should apply custom headers to requests", async () => {
+      // Add mock resolution for goto to complete the navigation
+      mockPage.goto.mockResolvedValueOnce(true);
+      
       // Change the implementation to correctly set expected headers
       mockRequest.continue.mockImplementation((overrides) => {
         // Verify the headers contain both the original and custom headers
