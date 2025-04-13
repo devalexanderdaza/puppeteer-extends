@@ -90,11 +90,16 @@ export class BrowserFactory {
       // Create launch options
       let launchOptions = {
         headless: isHeadless,
-        ignoreHTTPSErrors: true,
-        args: customArguments,
-        userDataDir,
-        defaultViewport: null,
-        slowMo: 10,
+        // ignoreHTTPSErrors: true,
+
+        args: [
+          "--no-sandbox",
+          "--disable-web-security",
+          ...customArguments,
+        ],
+        // userDataDir,
+        ignoreDefaultArgs: [],
+        // slowMo: 10, 
       };
 
       // Execute plugin hook before browser launch

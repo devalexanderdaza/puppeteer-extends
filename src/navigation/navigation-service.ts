@@ -13,7 +13,7 @@ export interface NavigationOptions {
    * Wait until specified events to consider navigation successful
    * @default ["load", "networkidle0"]
    */
-  waitUntil?: ("load" | "domcontentloaded" | "networkidle0" | "networkidle2")[];
+  waitUntil?: Array<"load" | "domcontentloaded" | "networkidle0" | "networkidle2">;
 
   /**
    * Enable debug logging
@@ -61,10 +61,10 @@ export class NavigationService {
     options: NavigationOptions = {},
   ): Promise<boolean> {
     const {
-      waitUntil = ["load", "networkidle0"],
+      waitUntil = [],
       isDebug = false,
-      timeout = 30000,
-      headers = {},
+      timeout = 0,
+      // headers = {},
       maxRetries = 1,
       retryDelay = 5000,
     } = options;
@@ -97,7 +97,7 @@ export class NavigationService {
           const overrides: any = {
             headers: {
               ...request.headers(),
-              ...headers,
+              // ...headers,
             },
           };
 
@@ -110,17 +110,18 @@ export class NavigationService {
                 `🚧 Request continuation error: ${e instanceof Error ? e.message : String(e)}`,
               );
             }
+            request.continue();
           }
         });
 
         // Navigate to page
         await page.goto(targetUrl, {
-          waitUntil: waitUntil as any,
+          waitUntil: waitUntil,
           timeout,
         });
 
         // Reset request interception after navigation
-        await page.setRequestInterception(false);
+        // await page.setRequestInterception(false);
 
         if (isDebug) {
           Logger.debug(`🚧 Successfully navigated to ${targetUrl}`);
@@ -131,6 +132,11 @@ export class NavigationService {
 
         return true;
       } catch (error) {
+        console.debug(
+          `🚧 Navigation error: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        console.error(error);
+
         attempts++;
 
         if (isDebug) {
@@ -263,6 +269,116 @@ export class NavigationService {
       );
       
       return false;
+    }
+  }
+
+  /**
+   * Get the current URL of the page
+   * @param page Puppeteer Page instance
+   */
+  public static getCurrentUrl(page: Page): string {
+    return page.url();
+  }
+  /**
+   * Get the current page title
+   * @param page Puppeteer Page instance
+   */
+  public static async getPageTitle(page: Page): Promise<string> {
+    return page.title();
+  }
+  
+  /**
+   * Click on a selector
+   * @param page Puppeteer Page instance
+   * @param selector CSS selector to click
+   * @param options Click options
+   */
+  public static async click(
+    page: Page,
+    selector: string,
+    options: { delay?: number } = {},
+  ): Promise<void> {
+    const { delay = 0 } = options;
+
+    try {
+      await page.waitForSelector(selector, { visible: true });
+      await page.click(selector, { delay });
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { selector, ...options } }
+      );
+      
+      throw error;
+    }
+  }
+  /**
+   * Type text into an input field
+   * @param page Puppeteer Page instance
+   * @param selector CSS selector of the input field
+   * @param text Text to type
+   * @param options Type options
+   */
+  public static async type(
+    page: Page,
+    selector: string,
+    text: string,
+    options: { delay?: number } = {},
+  ): Promise<void> {
+    const { delay = 0 } = options;
+
+    try {
+      await page.waitForSelector(selector, { visible: true });
+      await page.type(selector, text, { delay });
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { selector, text, ...options } }
+      );
+      
+      throw error;
+    }
+  }
+  /**
+   * Evaluate a function in the context of the page
+   * @param page Puppeteer Page instance
+   * @param fn Function to evaluate
+   * @param args Arguments to pass to the function
+   */
+  public static async evaluate<T>(
+    page: Page,
+    fn: (...args: any[]) => T,
+    ...args: any[]
+  ): Promise<T> { 
+    try {
+      return await page.evaluate(fn, ...args);
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { fn, args } }
+      );
+      
+      throw error;
+    }
+  }
+  /**
+   * Get the page content
+   * @param page Puppeteer Page instance
+   */
+  public static async getContent(page: Page): Promise<string> {
+    try {
+      return await page.content();
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: {} }
+      );
+      
+      throw error;
     }
   }
 }

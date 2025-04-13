@@ -43,6 +43,7 @@
     "test:coverage": "vitest run --coverage",
     "example": "ts-node examples/modern-example.ts",
     "example:plugins": "ts-node examples/plugins-example.ts",
+    "example:session": "ts-node examples/session-example.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release"
   },

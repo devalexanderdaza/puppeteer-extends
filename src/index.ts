@@ -13,12 +13,26 @@ import {
 import { NavigationService, NavigationOptions } from "./navigation";
 import { Logger } from "./utils";
 import { PluginManager, PuppeteerPlugin, PluginContext } from "./plugins";
+import { SessionManager, SessionOptions, SessionData } from "./session";
 
 /**
  * PuppeteerExtends API
  * Maintains backward compatibility with original API while providing new capabilities
  */
 const PuppeteerExtends = {
+  /**
+   * Logger instance
+   */
+  Logger,
+  /**
+   * Session manager instance
+   */
+  SessionManager,
+  /**
+   * Navigation service instance
+   */
+  NavigationService,
+
   /**
    * Get or create a browser instance
    * @param options Browser configuration options
@@ -105,10 +119,10 @@ const PuppeteerExtends = {
 };
 
 // Export modules
-export { PuppeteerExtends, Logger };
+export { PuppeteerExtends, Logger, SessionManager };
 
 // Export types for better developer experience
-export { BrowserOptions, NavigationOptions, PuppeteerPlugin, PluginContext };
+export { BrowserOptions, NavigationOptions, PuppeteerPlugin, PluginContext, SessionOptions, SessionData };
 
 // Default export for CommonJS compatibility
 export default PuppeteerExtends;

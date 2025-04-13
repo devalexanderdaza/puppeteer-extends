@@ -3,3 +3,4 @@
  */
 export * from './stealth-plugin';
 export * from './proxy-plugin';
+export * from './session-plugin';

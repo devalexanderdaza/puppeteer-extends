@@ -254,6 +254,87 @@ await PuppeteerExtends.registerPlugin(new MyCustomPlugin(), {
 | `onAfterNavigation` | After navigation completes (success or failure) |
 | `onError` | When an error occurs in any operation |
 
+## Session Management
+
+puppeteer-extends v1.7.0 introduces powerful session management capabilities, allowing you to persist cookies, localStorage, and other browser state between runs:
+
+```typescript
+import { PuppeteerExtends, SessionManager } from 'puppeteer-extends';
+
+// Create a session manager
+const sessionManager = new SessionManager({
+  name: 'my-session',
+  sessionDir: './sessions',
+  persistCookies: true,
+  persistLocalStorage: true,
+  domains: ['example.com'] // Only store cookies for these domains
+});
+
+// Get browser and create page
+const browser = await PuppeteerExtends.getBrowser();
+const page = await browser.newPage();
+
+// Apply session data to page (cookies, localStorage, etc.)
+await sessionManager.applySession(page);
+
+// Navigate somewhere
+await PuppeteerExtends.goto(page, 'https://example.com/login');
+
+// Perform login or other actions that modify session
+await page.type('#username', 'myuser');
+await page.type('#password', 'mypassword');
+await page.click('#login-button');
+
+// Wait for login to complete
+await PuppeteerExtends.waitForNavigation(page);
+
+// Extract and save session data (cookies, localStorage, etc.)
+await sessionManager.extractSession(page);
+
+// Next time you run your script, the session will be loaded automatically
+```
+
+### Using the SessionPlugin
+
+For more integrated session management, use the built-in SessionPlugin:
+
+```typescript
+import { PuppeteerExtends } from 'puppeteer-extends';
+import { SessionPlugin } from 'puppeteer-extends/plugins';
+
+// Register the session plugin
+await PuppeteerExtends.registerPlugin(new SessionPlugin({
+  name: 'my-session',
+  persistCookies: true,
+  persistLocalStorage: true,
+  extractAfterNavigation: true, // Auto-save after each navigation
+  applyBeforeNavigation: true   // Auto-apply before each navigation
+}));
+
+// Session management is now automatic
+const browser = await PuppeteerExtends.getBrowser();
+const page = await browser.newPage();
+
+// Navigate anywhere - session will be applied/extracted automatically
+await PuppeteerExtends.goto(page, 'https://example.com');
+```
+
+### Session Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `sessionDir` | string | `"./tmp/puppeteer-extends/sessions"` | Directory to store session files |
+| `name` | string | `"default"` | Session name (used for file name) |
+| `persistCookies` | boolean | `true` | Whether to save/load cookies |
+| `persistLocalStorage` | boolean | `true` | Whether to save/load localStorage |
+| `persistSessionStorage` | boolean | `false` | Whether to save/load sessionStorage |
+| `persistUserAgent` | boolean | `true` | Whether to save/load userAgent |
+| `domains` | string[] | `undefined` | Domains to include when saving cookies |
+| `extractAfterNavigation`* | boolean | `true` | Save session after each navigation |
+| `applyBeforeNavigation`* | boolean | `true` | Apply session before each navigation |
+
+*Only available in SessionPlugin
+
 ## API Reference
 
 ### PuppeteerExtends
