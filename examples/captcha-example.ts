@@ -18,7 +18,7 @@ async function runCaptchaExample() {
     
     // Register captcha plugin
     const captchaPlugin = new CaptchaPlugin({
-      service: CaptchaService.TWOCAPTCHA, // or CaptchaService.ANTICAPTCHA
+      service: CaptchaService.ANTICAPTCHA, // or CaptchaService.TWOCAPTCHA
       apiKey: apiKey,
       autoDetect: true,
       autoSolve: true
