@@ -408,6 +408,72 @@ Events.on(PuppeteerEvents.NAVIGATION_SUCCEEDED, async (params) => {
 await Events.emitAsync(PuppeteerEvents.CUSTOM_EVENT, { data: 'value' });
 ```
 
+## Captcha Handling
+
+puppeteer-extends v1.7.0 introduces sophisticated captcha detection and solving capabilities:
+
+```typescript
+import { PuppeteerExtends, CaptchaService } from 'puppeteer-extends';
+import { CaptchaPlugin } from 'puppeteer-extends/plugins';
+
+// Register the captcha plugin with automatic handling
+await PuppeteerExtends.registerPlugin(new CaptchaPlugin({
+  service: CaptchaService.TWOCAPTCHA, // or CaptchaService.ANTICAPTCHA
+  apiKey: 'your-api-key',
+  autoDetect: true,   // Auto-detect captchas on page load
+  autoSolve: true     // Auto-solve detected captchas
+}));
+
+// Get browser and create page
+const browser = await PuppeteerExtends.getBrowser();
+const page = await browser.newPage();
+
+// Navigate to a page - captchas will be automatically detected and solved
+await PuppeteerExtends.goto(page, 'https://example.com/with-captcha');
+
+// You can also handle captchas manually
+const plugin = PuppeteerExtends.getPlugin('captcha-plugin');
+const captchaHelper = plugin.getCaptchaHelper();
+
+// Detect captchas
+const captchas = await captchaHelper.detectCaptchas(page);
+
+// Solve a specific captcha
+if (captchas.recaptchaV2.length > 0) {
+  const solution = await captchaHelper.solveRecaptchaV2(page, captchas.recaptchaV2[0]);
+  console.log(`Solved captcha: ${solution.token}`);
+}
+```
+
+### Supported Captcha Types
+
+| Type | Description |
+|------|-------------|
+| `RECAPTCHA_V2` | Standard and invisible reCAPTCHA v2 |
+| `RECAPTCHA_V3` | Score-based reCAPTCHA v3 |
+| `HCAPTCHA` | hCaptcha challenges |
+| `IMAGE_CAPTCHA` | Traditional text/image captchas |
+| `FUNCAPTCHA` | Arkose Labs FunCaptcha |
+| `TURNSTILE` | Cloudflare Turnstile |
+
+### Supported Services
+
+| Service | Description |
+|---------|-------------|
+| `TWOCAPTCHA` | [2Captcha](https://2captcha.com/) service |
+| `ANTICAPTCHA` | [Anti-Captcha](https://anti-captcha.com/) service |
+
+### CaptchaPlugin Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `service` | CaptchaService | - | Captcha solving service to use |
+| `apiKey` | string | - | API key for the service |
+| `autoDetect` | boolean | `true` | Auto-detect captchas on page load |
+| `autoSolve` | boolean | `true` | Auto-solve detected captchas |
+| `timeout` | number | `120` | Timeout for solving (seconds) |
+| `ignoreUrls` | string[] | `[]` | URLs to ignore when detecting captchas |
+
 ## API Reference
 
 ### PuppeteerExtends

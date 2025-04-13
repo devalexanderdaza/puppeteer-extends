@@ -15,6 +15,13 @@ import { Logger } from "./utils";
 import { PluginManager, PuppeteerPlugin, PluginContext } from "./plugins";
 import { SessionManager, SessionOptions, SessionData } from "./session";
 import { Events, PuppeteerEvents, EventEmitter } from "./events";
+import { 
+  CaptchaType, 
+  CaptchaSolution, 
+  CaptchaOptions, 
+  CaptchaHelper, 
+  CaptchaService 
+} from "./captcha";
 
 /**
  * PuppeteerExtends API
@@ -120,10 +127,19 @@ const PuppeteerExtends = {
 };
 
 // Export modules
-export { PuppeteerExtends, Logger, SessionManager, Events, PuppeteerEvents };
+export { PuppeteerExtends, Logger, SessionManager, Events, PuppeteerEvents, CaptchaService, CaptchaType };
 
 // Export types for better developer experience
-export { BrowserOptions, NavigationOptions, PuppeteerPlugin, PluginContext, SessionOptions, SessionData };
+export { 
+  BrowserOptions, 
+  NavigationOptions, 
+  PuppeteerPlugin, 
+  PluginContext, 
+  SessionOptions, 
+  SessionData,
+  CaptchaOptions,
+  CaptchaSolution
+};
 
 // Default export for CommonJS compatibility
 export default PuppeteerExtends;

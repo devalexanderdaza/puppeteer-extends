@@ -45,10 +45,12 @@
     "example:plugins": "ts-node examples/plugins-example.ts",
     "example:session": "ts-node examples/session-example.ts",
     "example:events": "ts-node examples/events-example.ts",
+    "example:captcha": "ts-node examples/captcha-example.ts",
     "prepare": "husky install",
     "semantic-release": "semantic-release"
   },
   "dependencies": {
+    "axios": "^1.8.4",
     "folder-logger": "^1.0.9",
     "puppeteer": "^22.1.0",
     "puppeteer-extra": "^3.3.6",
