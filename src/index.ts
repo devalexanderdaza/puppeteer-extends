@@ -2,7 +2,7 @@
  * puppeteer-extends
  * Easy manage and instance puppeteer browsers using a factory pattern
  *
- * @since 1.6.0
+ * @since 1.7.0
  */
 import { Page } from "puppeteer";
 import {
@@ -12,12 +12,35 @@ import {
 } from "./browser";
 import { NavigationService, NavigationOptions } from "./navigation";
 import { Logger } from "./utils";
+import { PluginManager, PuppeteerPlugin, PluginContext } from "./plugins";
+import { SessionManager, SessionOptions, SessionData } from "./session";
+import { Events, PuppeteerEvents, EventEmitter } from "./events";
+import { 
+  CaptchaType, 
+  CaptchaSolution, 
+  CaptchaOptions, 
+  CaptchaHelper, 
+  CaptchaService 
+} from "./captcha";
 
 /**
  * PuppeteerExtends API
  * Maintains backward compatibility with original API while providing new capabilities
  */
 const PuppeteerExtends = {
+  /**
+   * Logger instance
+   */
+  Logger,
+  /**
+   * Session manager instance
+   */
+  SessionManager,
+  /**
+   * Navigation service instance
+   */
+  NavigationService,
+
   /**
    * Get or create a browser instance
    * @param options Browser configuration options
@@ -71,16 +94,52 @@ const PuppeteerExtends = {
     NavigationService.waitForSelector(page, selector, timeout),
 
   /**
+   * Register a plugin
+   * @param plugin Plugin implementation
+   * @param options Plugin options
+   */
+  registerPlugin: (plugin: PuppeteerPlugin, options?: Record<string, any>) =>
+    PluginManager.registerPlugin(plugin, options),
+
+  /**
+   * Unregister a plugin
+   * @param pluginName Plugin name
+   */
+  unregisterPlugin: (pluginName: string) =>
+    PluginManager.unregisterPlugin(pluginName),
+
+  /**
+   * Get a plugin by name
+   * @param pluginName Plugin name
+   */
+  getPlugin: (pluginName: string) =>
+    PluginManager.getPlugin(pluginName),
+
+  /**
+   * Get all registered plugins
+   */
+  getAllPlugins: () => PluginManager.getAllPlugins(),
+
+  /**
    * Default browser arguments
    */
   DEFAULT_BROWSER_ARGS,
 };
 
 // Export modules
-export { PuppeteerExtends, Logger };
+export { PuppeteerExtends, Logger, SessionManager, Events, PuppeteerEvents, CaptchaService, CaptchaType };
 
 // Export types for better developer experience
-export { BrowserOptions, NavigationOptions };
+export { 
+  BrowserOptions, 
+  NavigationOptions, 
+  PuppeteerPlugin, 
+  PluginContext, 
+  SessionOptions, 
+  SessionData,
+  CaptchaOptions,
+  CaptchaSolution
+};
 
 // Default export for CommonJS compatibility
 export default PuppeteerExtends;

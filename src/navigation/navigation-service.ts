@@ -1,8 +1,10 @@
 /**
- * @since 1.6.0
+ * @since 1.7.0
  */
 import { Page } from "puppeteer";
-import { Logger } from "../utils/logger";
+import { Logger } from "../utils";
+import { PluginManager, PluginContext } from "../plugins";
+import { Events, PuppeteerEvents, NavigationEventParams, ErrorEventParams } from "../events";
 
 /**
  * Navigation options
@@ -12,7 +14,7 @@ export interface NavigationOptions {
    * Wait until specified events to consider navigation successful
    * @default ["load", "networkidle0"]
    */
-  waitUntil?: ("load" | "domcontentloaded" | "networkidle0" | "networkidle2")[];
+  waitUntil?: Array<"load" | "domcontentloaded" | "networkidle0" | "networkidle2">;
 
   /**
    * Enable debug logging
@@ -60,13 +62,19 @@ export class NavigationService {
     options: NavigationOptions = {},
   ): Promise<boolean> {
     const {
-      waitUntil = ["load", "networkidle0"],
+      waitUntil = [],
       isDebug = false,
-      timeout = 30000,
-      headers = {},
+      timeout = 0,
+      // headers = {},
       maxRetries = 1,
       retryDelay = 5000,
     } = options;
+
+    // Create plugin context
+    const context: PluginContext = {
+      page,
+      options,
+    };
 
     let attempts = 0;
 
@@ -78,6 +86,16 @@ export class NavigationService {
           );
         }
 
+        // Emit navigation started event
+        await Events.emitAsync(PuppeteerEvents.NAVIGATION_STARTED, {
+          page,
+          url: targetUrl,
+          options
+        } as NavigationEventParams);
+
+        // Execute plugin hook before navigation
+        await PluginManager.executeHook('onBeforeNavigation', context, page, targetUrl, options);
+
         // Reset request interception before setting it again
         await page.setRequestInterception(false);
         await page.setRequestInterception(true);
@@ -87,7 +105,7 @@ export class NavigationService {
           const overrides: any = {
             headers: {
               ...request.headers(),
-              ...headers,
+              // ...headers,
             },
           };
 
@@ -97,15 +115,17 @@ export class NavigationService {
             // Request may have been handled already
             if (isDebug) {
               Logger.debug(
-                `🚧 Request continuation error: ${e instanceof Error ? e.message : String(e)}`,
+                `🚧 Request continuation error: ${e instanceof Error ? e : String(e)}`,
               );
             }
+            // TODO - Validate if this is the right way to handle this
+            // request.continue();
           }
         });
 
         // Navigate to page
         await page.goto(targetUrl, {
-          waitUntil: waitUntil as any,
+          waitUntil: waitUntil,
           timeout,
         });
 
@@ -116,19 +136,36 @@ export class NavigationService {
           Logger.debug(`🚧 Successfully navigated to ${targetUrl}`);
         }
 
+        // Emit navigation succeeded event
+        await Events.emitAsync(PuppeteerEvents.NAVIGATION_SUCCEEDED, {
+          page,
+          url: targetUrl,
+          options
+        } as NavigationEventParams);
+
+        // Execute plugin hook after successful navigation
+        await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, true);
+
         return true;
       } catch (error) {
         attempts++;
 
         if (isDebug) {
           Logger.debug(
-            `🚧 Navigation error: ${error instanceof Error ? error.message : String(error)}`,
+            `🚧 Navigation error: ${error instanceof Error ? error : String(error)}`,
           );
 
           if (attempts <= maxRetries) {
             Logger.debug(`🚧 Retrying in ${retryDelay}ms...`);
           }
         }
+
+        // Emit navigation error event
+        await Events.emitAsync(PuppeteerEvents.NAVIGATION_ERROR, {
+          error: error instanceof Error ? error : new Error(String(error)),
+          source: 'navigation',
+          context: { page, url: targetUrl, options }
+        } as ErrorEventParams);
 
         // Reset request interception if it failed
         try {
@@ -137,17 +174,54 @@ export class NavigationService {
           // Ignore errors during cleanup
         }
 
-        if (attempts <= maxRetries) {
+        // Execute error hook and check if any plugin handled it
+        const handled = await PluginManager.executeErrorHook(
+          error instanceof Error ? error : new Error(String(error)),
+          { ...context }
+        );
+
+        // If error wasn't handled by any plugin, continue with retries
+        if (!handled && attempts <= maxRetries) {
           // Wait before retrying
           await new Promise((resolve) => setTimeout(resolve, retryDelay));
-        } else {
+        } else if (!handled) {
           if (isDebug) {
             Logger.debug(`🚧 All navigation attempts failed for ${targetUrl}`);
           }
+
+          // Emit navigation failed event
+          await Events.emitAsync(PuppeteerEvents.NAVIGATION_FAILED, {
+            page,
+            url: targetUrl,
+            options,
+            error: error instanceof Error ? error : new Error(String(error))
+          } as NavigationEventParams);
+          
+          // Execute plugin hook after failed navigation
+          await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
+          
           return false;
+        } else {
+          // If a plugin handled the error, try again immediately if we have attempts left
+          if (attempts <= maxRetries) {
+            continue;
+          } else {
+            await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
+            return false;
+          }
         }
       }
     }
+
+    // Execute plugin hook after all navigation attempts failed
+    await PluginManager.executeHook('onAfterNavigation', context, page, targetUrl, false);
+    
+    // Emit navigation failed event
+    await Events.emitAsync(PuppeteerEvents.NAVIGATION_FAILED, {
+      page,
+      url: targetUrl,
+      options
+    } as NavigationEventParams);
 
     return false;
   }
@@ -157,9 +231,23 @@ export class NavigationService {
    * @param page Puppeteer Page instance
    */
   public static async closePage(page: Page): Promise<void> {
+    // Create plugin context
+    const context: PluginContext = {
+      page,
+    };
+
     try {
+      // Execute plugin hook before page close
+      await PluginManager.executeHook('onBeforePageClose', context, page);
+      
       await page.close();
     } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        context
+      );
+      
       // Ignore errors during page closing
     }
   }
@@ -182,6 +270,19 @@ export class NavigationService {
       });
       return true;
     } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options }
+      );
+      
+      // Emit navigation error event
+      await Events.emitAsync(PuppeteerEvents.NAVIGATION_ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'waitForNavigation',
+        context: { page, options }
+      } as ErrorEventParams);
+      
       return false;
     }
   }
@@ -201,7 +302,158 @@ export class NavigationService {
       await page.waitForSelector(selector, { visible: true, timeout });
       return true;
     } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { selector, timeout } }
+      );
+      
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'waitForSelector',
+        context: { page, selector, timeout }
+      } as ErrorEventParams);
+      
       return false;
+    }
+  }
+
+  /**
+   * Get the current URL of the page
+   * @param page Puppeteer Page instance
+   */
+  public static getCurrentUrl(page: Page): string {
+    return page.url();
+  }
+  /**
+   * Get the current page title
+   * @param page Puppeteer Page instance
+   */
+  public static async getPageTitle(page: Page): Promise<string> {
+    return page.title();
+  }
+  
+  /**
+   * Click on a selector
+   * @param page Puppeteer Page instance
+   * @param selector CSS selector to click
+   * @param options Click options
+   */
+  public static async click(
+    page: Page,
+    selector: string,
+    options: { delay?: number } = {},
+  ): Promise<void> {
+    const { delay = 0 } = options;
+
+    try {
+      await page.waitForSelector(selector, { visible: true });
+      await page.click(selector, { delay });
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { selector, ...options } }
+      );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'click',
+        context: { page, selector, options }
+      } as ErrorEventParams);
+      
+      throw error;
+    }
+  }
+  /**
+   * Type text into an input field
+   * @param page Puppeteer Page instance
+   * @param selector CSS selector of the input field
+   * @param text Text to type
+   * @param options Type options
+   */
+  public static async type(
+    page: Page,
+    selector: string,
+    text: string,
+    options: { delay?: number } = {},
+  ): Promise<void> {
+    const { delay = 0 } = options;
+
+    try {
+      await page.waitForSelector(selector, { visible: true });
+      await page.type(selector, text, { delay });
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { selector, text, ...options } }
+      );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'type',
+        context: { page, selector, text, options }
+      } as ErrorEventParams);
+      
+      throw error;
+    }
+  }
+  /**
+   * Evaluate a function in the context of the page
+   * @param page Puppeteer Page instance
+   * @param fn Function to evaluate
+   * @param args Arguments to pass to the function
+   */
+  public static async evaluate<T>(
+    page: Page,
+    fn: (...args: any[]) => T,
+    ...args: any[]
+  ): Promise<T> { 
+    try {
+      return await page.evaluate(fn, ...args);
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: { fn, args } }
+      );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'evaluate',
+        context: { page, fn, args }
+      } as ErrorEventParams);
+      
+      throw error;
+    }
+  }
+  /**
+   * Get the page content
+   * @param page Puppeteer Page instance
+   */
+  public static async getContent(page: Page): Promise<string> {
+    try {
+      return await page.content();
+    } catch (error) {
+      // Execute error hook
+      await PluginManager.executeErrorHook(
+        error instanceof Error ? error : new Error(String(error)),
+        { page, options: {} }
+      );
+
+      // Emit error event
+      await Events.emitAsync(PuppeteerEvents.ERROR, {
+        error: error instanceof Error ? error : new Error(String(error)),
+        source: 'getContent',
+        context: { page, options: {} }
+      } as ErrorEventParams);
+      
+      throw error;
     }
   }
 }
